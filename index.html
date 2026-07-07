@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>LODGE–1 v3 · Reverse Dialogue Unit</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2a2a2c">
+<style>
+  :root{
+    --putty:#d7d4cd; --putty-hi:#e4e2dc; --putty-lo:#bdbab2;
+    --ink:#17181a; --rec:#ff4400; --curtain:#7a0e18; --cream:#efe6d0;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    background:#2a2a2c; font-family:var(--mono); color:var(--ink);
+    display:flex; justify-content:center; min-height:100%;
+    padding:max(10px, env(safe-area-inset-top)) 0 40px;
+  }
+  .unit{
+    width:min(430px,100vw); background:var(--putty);
+    border-radius:14px; padding:12px 12px 18px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 1px 0 var(--putty-hi);
+  }
+  .brand{ display:flex; justify-content:space-between; align-items:baseline; padding:2px 4px 6px; }
+  .brand b{ font-size:12px; letter-spacing:.24em; font-weight:700; }
+  .brand span{ font-size:9px; letter-spacing:.18em; color:#6f6d68; }
+  .ledger{ font-size:9px; letter-spacing:.2em; color:#6f6d68; padding:0 4px 8px; }
+  .ledger b{ color:#3c3a36; font-weight:700; }
+
+  .stagewrap{ position:relative; border-radius:6px; overflow:hidden; background:#000; box-shadow:inset 0 0 0 2px #a9a69e; }
+  canvas.stage{ width:100%; display:block; }
+  .lamp{ position:absolute; top:8px; left:8px; width:10px; height:10px; border-radius:50%; background:#3a3a3a; }
+  .lamp.on{ background:var(--rec); box-shadow:0 0 10px var(--rec); animation:bl 1s infinite; }
+  @keyframes bl{50%{opacity:.25}}
+  .timer{ position:absolute; top:5px; right:9px; color:var(--cream); font-size:12px; text-shadow:0 0 4px #000; }
+
+  .transport{ display:grid; grid-template-columns:56px 1fr 56px; gap:10px; align-items:center; margin:12px 0 4px; }
+  .knobbtn{
+    width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, var(--putty-hi), var(--putty-lo));
+    box-shadow:0 2px 4px rgba(0,0,0,.35), inset 0 1px 0 #fff;
+    font-family:var(--mono); font-size:18px; color:var(--ink);
+  }
+  .knobbtn:active{ box-shadow:inset 0 2px 5px rgba(0,0,0,.4); }
+  .counter{ text-align:center; background:var(--ink); color:var(--cream); border-radius:5px; padding:8px 6px; }
+  .counter .num{ font-size:15px; letter-spacing:.2em; }
+  .counter .num em{ font-style:normal; color:#8fbf6f; font-size:10px; margin-left:6px; }
+  .counter .line{ font-size:11px; color:#b7ad93; margin-top:4px; min-height:28px; line-height:1.3; letter-spacing:.03em; }
+
+  .modes{ display:flex; gap:6px; margin:12px 0; }
+  .modes button{
+    flex:1; font-family:var(--mono); font-size:10px; letter-spacing:.2em;
+    padding:10px 0; border:none; border-radius:4px; cursor:pointer;
+    background:var(--putty-lo); color:#4a4844;
+  }
+  .modes button.active{ background:var(--ink); color:var(--cream); }
+
+  .panel{ display:none; padding:4px 2px; }
+  .panel.active{ display:block; }
+  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+
+  .op{
+    font-family:var(--mono); font-size:10px; letter-spacing:.18em; cursor:pointer;
+    padding:12px 14px; border:none; border-radius:4px;
+    background:var(--ink); color:var(--cream); flex:1; min-width:90px;
+  }
+  .op.rec{ background:var(--rec); color:#fff; }
+  .op.live{ background:#111; color:var(--rec); outline:2px solid var(--rec); }
+  .op.quiet{ background:var(--putty-lo); color:#3c3a36; }
+  .op:disabled{ opacity:.35; cursor:default; }
+
+  .lcd{
+    background:#20221f; color:#c9e6b0; border-radius:4px;
+    font-size:10px; letter-spacing:.14em; padding:9px 10px; margin-top:4px;
+    min-height:32px; line-height:1.5;
+  }
+  input[type=range]{ flex:1; accent-color:var(--rec); }
+  .lbl{ font-size:9px; letter-spacing:.18em; color:#6f6d68; }
+  .toggle{ display:flex; align-items:center; gap:8px; font-size:9px; letter-spacing:.16em; color:#4a4844; }
+
+  details{ margin-top:14px; }
+  summary{ font-size:9px; letter-spacing:.2em; color:#6f6d68; cursor:pointer; padding:4px 2px; }
+  textarea{
+    width:100%; min-height:130px; margin-top:8px; border-radius:4px;
+    border:1px solid var(--putty-lo); background:#fffef9; color:var(--ink);
+    font-family:var(--mono); font-size:12px; padding:8px; line-height:1.5;
+  }
+  video#resultVid{ width:100%; border-radius:6px; margin-top:8px; background:#000; display:none; }
+  progress{ width:100%; height:5px; accent-color:var(--rec); margin-top:6px; display:none; }
+
+  .reel-item{ display:flex; gap:6px; align-items:center; padding:8px 4px; border-bottom:1px solid var(--putty-lo); }
+  .reel-item .rlbl{ flex:1; font-size:10px; letter-spacing:.06em; line-height:1.4; }
+  .reel-item button{ font-family:var(--mono); font-size:9px; letter-spacing:.14em; border:none;
+    border-radius:4px; padding:8px 9px; cursor:pointer; background:var(--ink); color:var(--cream); }
+  .reel-item button.danger{ background:#5c0710; }
+</style>
+</head>
+<body>
+<div class="unit">
+  <div class="brand"><b>LODGE–1 <span style="color:#ff4400">v3</span></b><span>OFFLINE · AUTO-BACKUP · FOR LUCY</span></div>
+  <div class="ledger" id="ledger">BOOTING…</div>
+
+  <div class="stagewrap">
+    <canvas class="stage" id="stage" width="720" height="540"></canvas>
+    <div class="lamp" id="lamp"></div>
+    <div class="timer" id="timer"></div>
+  </div>
+
+  <div class="transport">
+    <button class="knobbtn" id="prevBtn">◀</button>
+    <div class="counter">
+      <div class="num" id="counterNum">·· / ··</div>
+      <div class="line" id="counterLine"></div>
+    </div>
+    <button class="knobbtn" id="nextBtn">▶</button>
+  </div>
+
+  <div class="modes">
+    <button id="m0" class="active">REF</button>
+    <button id="m1">LEARN</button>
+    <button id="m2">TAKE</button>
+  </div>
+
+  <!-- REF -->
+  <div class="panel active" id="p0">
+    <div class="row">
+      <button class="op rec" id="refRec">● REC FORWARD</button>
+      <button class="op quiet" id="refPlay" disabled>▶ FWD</button>
+      <button class="op quiet" id="refPlayRev" disabled>▶ REV</button>
+    </div>
+    <div class="lcd" id="lcd0">SPEAK THE LINE NORMALLY. TAP ● TO START, TAP AGAIN TO STOP. EVERY RECORDING IS SAVED TO THE UNIT THE MOMENT IT ENDS.</div>
+  </div>
+
+  <!-- LEARN -->
+  <div class="panel" id="p1">
+    <div class="row">
+      <button class="op" id="loopBtn" disabled>⟳ LOOP REVERSED REF</button>
+      <button class="op quiet" id="loopStop" disabled>■</button>
+    </div>
+    <div class="row">
+      <span class="lbl">SPEED</span>
+      <input type="range" id="speed" min="0.5" max="1" step="0.05" value="0.7">
+      <span class="lbl" id="speedVal">0.70×</span>
+    </div>
+    <div class="row">
+      <button class="op rec" id="echoRec" disabled>● ECHO CHECK</button>
+    </div>
+    <div class="lcd" id="lcd1">MIMIC THE LOOP OUT LOUD. ECHO CHECK: RECORD YOUR ATTEMPT (TAP AGAIN TO STOP) — HEARS BACK: ATTEMPT REVERSED → PAUSE → REAL LINE.</div>
+  </div>
+
+  <!-- TAKE -->
+  <div class="panel" id="p2">
+    <div class="row">
+      <button class="op quiet" id="camBtn">CAMERA ON</button>
+      <button class="op rec" id="takeRec" disabled>● TAKE</button>
+    </div>
+    <div class="row">
+      <label class="toggle"><input type="checkbox" id="grade" checked> LODGE GRADE (GRAIN + RED)</label>
+    </div>
+    <div class="row">
+      <button class="op" id="revBtn" disabled>⇄ REVERSE TAKE</button>
+      <button class="op quiet" id="saveBtn" disabled>SAVE</button>
+      <button class="op quiet" id="shareBtn" disabled>SHARE</button>
+    </div>
+    <progress id="prog" value="0" max="100"></progress>
+    <video id="resultVid" controls playsinline></video>
+    <div class="lcd" id="lcd2">TAP CAMERA ON. FACE IN THE OVAL. TAP ● TO ROLL, ■ TO CUT (15s MAX). EVERY TAKE IS KEPT — NOTHING IS OVERWRITTEN.</div>
+  </div>
+
+  <details open>
+    <summary>REEL · EVERYTHING IN THE VAULT</summary>
+    <div id="reel"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="op quiet" id="exportAll">EXPORT ALL RESULTS</button>
+    </div>
+    <div class="lcd" id="lcdReel">THE VAULT SURVIVES CRASHES AND RELOADS. STILL: EXPORT TO FILES/PHOTOS AT THE END OF THE NIGHT. BELT AND SUSPENDERS.</div>
+  </details>
+
+  <details>
+    <summary>SCRIPT · ONE CHUNK PER LINE · EDIT FREELY (30+ OK)</summary>
+    <textarea id="scriptBox">I am not the man you think I am.
+I lost my arm. I did not lose the message.
+The room is red. The words are turned around.
+Lucy. The map to Wisconsin is under the coffee.
+We live inside a dream. The dream has cheese.
+The curtain opens for those who speak backwards.
+Do not be afraid. It is only your voice, returned.
+The owls carry your mail now.
+Twenty five years is not so long in here.
+Goodbye sounds almost the same in reverse.</textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="op quiet" id="loadScript">LOAD SCRIPT</button>
+    </div>
+    <div class="lcd">LOADING A NEW SCRIPT KEEPS THE VAULT — RECORDINGS STAY ATTACHED TO THEIR CHUNK NUMBER.</div>
+  </details>
+</div>
+
+<script>
+/* =====================================================================
+   LODGE-1 v3
+   - PWA: service worker caches the app; runs fully offline after the
+     first visit. Add to Home Screen for the full-screen unit.
+   - VAULT: IndexedDB. Every ref / take / result is written to disk the
+     moment it exists. Crash, reload, reboot — session restores itself.
+   - GENERATIONS: takes and results are never overwritten; each new one
+     gets the next generation number for its chunk. The reel lists all.
+   - Mic is borrowed per recording and released immediately (iOS audio
+     session stays in clean media mode — no crackle).
+===================================================================== */
+
+/* ---------- service worker + persistent storage ---------- */
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
+
+/* ---------- tiny IndexedDB layer ---------- */
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('lodge1',1);
+    r.onupgradeneeded=e=>{
+      const db=e.target.result;
+      const m=db.createObjectStore('media',{keyPath:'id',autoIncrement:true});
+      m.createIndex('by_chunk','chunkIdx');
+      db.createObjectStore('meta',{keyPath:'k'});
+    };
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  });
+}
+const dbP=openDB();
+async function dbPut(store,val){ const db=await dbP; return new Promise((res,rej)=>{
+  const q=db.transaction(store,'readwrite').objectStore(store).put(val);
+  q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });}
+async function dbAll(store){ const db=await dbP; return new Promise((res,rej)=>{
+  const q=db.transaction(store).objectStore(store).getAll();
+  q.onsuccess=()=>res(q.result||[]); q.onerror=()=>rej(q.error); });}
+async function dbDel(store,id){ const db=await dbP; return new Promise((res,rej)=>{
+  const q=db.transaction(store,'readwrite').objectStore(store).delete(id);
+  q.onsuccess=()=>res(); q.onerror=()=>rej(q.error); });}
+async function dbGetMeta(k){ const db=await dbP; return new Promise((res,rej)=>{
+  const q=db.transaction('meta').objectStore('meta').get(k);
+  q.onsuccess=()=>res(q.result?q.result.v:null); q.onerror=()=>rej(q.error); });}
+const setMeta=(k,v)=>dbPut('meta',{k,v});
+
+/* ---------- state ---------- */
+let chunks=[];        // per chunk: {text} + runtime: fwd,rev,fwdUrl,revUrl,takeBlob,resultBlob,resultUrl
+let rows=[];          // in-memory mirror of the media store: {id,chunkIdx,kind,blob,mime,ts,gen}
+let cur=0;
+const $=id=>document.getElementById(id);
+const lcd=(n,t)=>{$('lcd'+n).textContent=t.toUpperCase();};
+
+function rowsFor(i,kind){ return rows.filter(r=>r.chunkIdx===i && r.kind===kind).sort((a,b)=>a.gen-b.gen); }
+function latest(i,kind){ const l=rowsFor(i,kind); return l.length? l[l.length-1] : null; }
+function nextGen(i,kind){ const l=rowsFor(i,kind); return l.length? l[l.length-1].gen+1 : 1; }
+
+async function vaultAdd(chunkIdx,kind,blob){
+  const rec={chunkIdx,kind,blob,mime:blob.type,ts:Date.now(),gen:nextGen(chunkIdx,kind)};
+  rec.id=await dbPut('media',rec);
+  rows.push(rec);
+  renderLedger();
+  return rec;
+}
+
+/* ---------- ledger ---------- */
+function renderLedger(){
+  const refs=new Set(rows.filter(r=>r.kind==='ref').map(r=>r.chunkIdx)).size;
+  const takes=rows.filter(r=>r.kind==='take').length;
+  const results=rows.filter(r=>r.kind==='result').length;
+  $('ledger').innerHTML='VAULT — REFS <b>'+String(refs).padStart(2,'0')+'</b> · TAKES <b>'
+    +String(takes).padStart(2,'0')+'</b> · REVERSED <b>'+String(results).padStart(2,'0')+'</b>';
+}
+
+/* ---------- script ---------- */
+async function loadScript(persist){
+  const lines=$('scriptBox').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  chunks=lines.map(t=>({text:t}));
+  if(persist) await setMeta('script',$('scriptBox').value);
+  cur=Math.min(cur,chunks.length-1);
+  hydrateChunk(cur); renderChunk(); renderReel(); renderLedger();
+}
+$('loadScript').onclick=()=>loadScript(true);
+
+/* ---------- chunk hydration from vault ---------- */
+function hydrateChunk(i){
+  const c=chunks[i]; if(!c) return;
+  if(!c.takeBlob){ const t=latest(i,'take'); if(t) c.takeBlob=t.blob; }
+  if(!c.resultBlob){ const r=latest(i,'result'); if(r){ c.resultBlob=r.blob; c.resultUrl=URL.createObjectURL(r.blob); } }
+  // ref audio decodes lazily via ensureRef()
+}
+async function ensureRef(c,i){
+  if(c.fwd) return true;
+  const r=latest(i,'ref'); if(!r) return false;
+  const pcm=toMono(await decodeBlob(r.blob));
+  c.fwd=pcm; c.rev=reversePcm(pcm);
+  c.fwdUrl=wavUrl(c.fwd); c.revUrl=wavUrl(c.rev);
+  return true;
+}
+
+function renderChunk(){
+  const c=chunks[cur]; if(!c) return;
+  const rG=rowsFor(cur,'ref').length, tG=rowsFor(cur,'take').length, xG=rowsFor(cur,'result').length;
+  const marks=(rG?'R'+rG:'··')+' '+(tG?'T'+tG:'··')+' '+(xG?'⇄'+xG:'··');
+  $('counterNum').innerHTML=String(cur+1).padStart(2,'0')+' / '+String(chunks.length).padStart(2,'0')+'<em>'+marks+'</em>';
+  $('counterLine').textContent=c.text;
+  const hasRef=!!latest(cur,'ref');
+  $('refPlay').disabled=$('refPlayRev').disabled=!hasRef;
+  $('loopBtn').disabled=$('echoRec').disabled=!hasRef;
+  $('revBtn').disabled=!c.takeBlob;
+  $('saveBtn').disabled=$('shareBtn').disabled=!c.resultBlob;
+  const rv=$('resultVid');
+  if(c.resultUrl){ rv.src=c.resultUrl; rv.style.display='block'; }
+  else { rv.removeAttribute('src'); rv.style.display='none'; }
+  stopPlayback();
+}
+$('prevBtn').onclick=()=>{ cur=(cur-1+chunks.length)%chunks.length; hydrateChunk(cur); renderChunk(); };
+$('nextBtn').onclick=()=>{ cur=(cur+1)%chunks.length; hydrateChunk(cur); renderChunk(); };
+
+/* ---------- modes ---------- */
+[0,1,2].forEach(i=>{
+  $('m'+i).onclick=()=>{
+    [0,1,2].forEach(j=>{ $('m'+j).classList.toggle('active',j===i); $('p'+j).classList.toggle('active',j===i); });
+    if(i!==2) idleScene();
+  };
+});
+
+/* ---------- audio: decode / reverse / wav ---------- */
+async function decodeBlob(blob){
+  const ab=await blob.arrayBuffer();
+  const c=new (window.AudioContext||window.webkitAudioContext)();
+  try{
+    const buf=await c.decodeAudioData(ab);
+    const ch=[]; for(let i=0;i<buf.numberOfChannels;i++) ch.push(Float32Array.from(buf.getChannelData(i)));
+    return {rate:buf.sampleRate, ch};
+  } finally { c.close(); }
+}
+function toMono(pcm){
+  if(pcm.ch.length===1) return pcm;
+  const n=pcm.ch[0].length, out=new Float32Array(n);
+  for(let i=0;i<n;i++){ let s=0; for(const c of pcm.ch) s+=c[i]; out[i]=s/pcm.ch.length; }
+  return {rate:pcm.rate, ch:[out]};
+}
+function reversePcm(pcm){
+  return {rate:pcm.rate, ch:pcm.ch.map(c=>{ const d=Float32Array.from(c); Array.prototype.reverse.call(d); return d; })};
+}
+function concatPcm(a, gapSec, b){
+  const A=toMono(a).ch[0], B=toMono(b).ch[0], rate=a.rate;
+  const gap=Math.round(gapSec*rate);
+  const out=new Float32Array(A.length+gap+B.length);
+  out.set(A,0); out.set(B,A.length+gap);
+  return {rate, ch:[out]};
+}
+function pcmToWav(pcm){
+  const chs=pcm.ch, n=chs[0].length, nc=chs.length, rate=pcm.rate;
+  const bytes=44+n*nc*2, buf=new ArrayBuffer(bytes), dv=new DataView(buf);
+  const wstr=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i));};
+  wstr(0,'RIFF'); dv.setUint32(4,bytes-8,true); wstr(8,'WAVE'); wstr(12,'fmt ');
+  dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,nc,true);
+  dv.setUint32(24,rate,true); dv.setUint32(28,rate*nc*2,true); dv.setUint16(32,nc*2,true);
+  dv.setUint16(34,16,true); wstr(36,'data'); dv.setUint32(40,n*nc*2,true);
+  let o=44;
+  for(let i=0;i<n;i++) for(let c=0;c<nc;c++){
+    let v=Math.max(-1,Math.min(1,chs[c][i]));
+    dv.setInt16(o, v<0? v*0x8000 : v*0x7FFF, true); o+=2;
+  }
+  return new Blob([buf],{type:'audio/wav'});
+}
+function wavUrl(pcm){ return URL.createObjectURL(pcmToWav(pcm)); }
+
+/* ---------- playback ---------- */
+const player=new Audio();
+player.setAttribute('playsinline','');
+function playUrl(url,{rate=1,loop=false}={}){
+  stopPlayback();
+  player.src=url; player.loop=loop;
+  player.preservesPitch=false; player.webkitPreservesPitch=false;
+  player.playbackRate=rate;
+  return player.play().catch(e=>lcd(1,'Playback blocked: '+e.message));
+}
+function stopPlayback(){ try{ player.pause(); player.currentTime=0; }catch(e){} $('loopStop').disabled=true; }
+
+/* ---------- recording: borrow mic, return mic ---------- */
+function audioMime(){
+  const o=['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+  for(const m of o){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
+  return '';
+}
+async function recAudio(maxSec,onTick){
+  const stream=await navigator.mediaDevices.getUserMedia({
+    audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}
+  });
+  const r=new MediaRecorder(stream,{mimeType:audioMime()});
+  const parts=[]; r.ondataavailable=e=>{ if(e.data.size) parts.push(e.data); };
+  let iv=null;
+  const done=new Promise(res=>{
+    r.onstop=()=>{ clearInterval(iv); stream.getTracks().forEach(t=>t.stop());
+      res(new Blob(parts,{type:r.mimeType})); };
+  });
+  r.start(200);
+  let t=maxSec; onTick&&onTick(t);
+  iv=setInterval(()=>{ t--; onTick&&onTick(t); if(t<=0) stop(); },1000);
+  function stop(){ if(r.state!=='inactive') r.stop(); }
+  return {done, stop};
+}
+function setLive(btn, live, label, liveLabel){
+  btn.classList.toggle('live', live);
+  btn.textContent=live? liveLabel : label;
+}
+
+/* ---------- REF ---------- */
+let refJob=null;
+$('refRec').onclick=async()=>{
+  if(refJob){ refJob.stop(); return; }
+  stopPlayback();
+  const c=chunks[cur], i=cur;
+  try{
+    refJob=await recAudio(10, t=>$('timer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
+    $('lamp').classList.add('on'); setLive($('refRec'),true,'● REC FORWARD','■ STOP');
+    lcd(0,'Recording… speak the line, then tap ■.');
+    const blob=await refJob.done;
+    refJob=null; $('lamp').classList.remove('on'); $('timer').textContent='';
+    setLive($('refRec'),false,'● REC FORWARD','■ STOP');
+    await vaultAdd(i,'ref',blob);                    // to disk FIRST
+    ['fwdUrl','revUrl'].forEach(k=>{ if(c[k]) URL.revokeObjectURL(c[k]); });
+    const pcm=toMono(await decodeBlob(blob));
+    c.fwd=pcm; c.rev=reversePcm(pcm);
+    c.fwdUrl=wavUrl(c.fwd); c.revUrl=wavUrl(c.rev);
+    lcd(0,'Saved to vault (gen '+rowsFor(i,'ref').length+') + reversed. FWD / REV to listen.');
+    renderChunk();
+  }catch(e){
+    refJob=null; $('lamp').classList.remove('on');
+    setLive($('refRec'),false,'● REC FORWARD','■ STOP');
+    lcd(0,'Mic blocked: '+e.message);
+  }
+};
+$('refPlay').onclick=async()=>{ if(await ensureRef(chunks[cur],cur)) playUrl(chunks[cur].fwdUrl); };
+$('refPlayRev').onclick=async()=>{ if(await ensureRef(chunks[cur],cur)) playUrl(chunks[cur].revUrl); };
+
+/* ---------- LEARN ---------- */
+$('speed').oninput=e=>{
+  $('speedVal').textContent=Number(e.target.value).toFixed(2)+'×';
+  if(!player.paused) player.playbackRate=Number(e.target.value);
+};
+$('loopBtn').onclick=async()=>{
+  if(!await ensureRef(chunks[cur],cur)) return;
+  playUrl(chunks[cur].revUrl,{rate:Number($('speed').value),loop:true});
+  $('loopStop').disabled=false;
+  lcd(1,'Looping your line, reversed. Mimic it. Drag speed live.');
+};
+$('loopStop').onclick=stopPlayback;
+
+let echoJob=null;
+$('echoRec').onclick=async()=>{
+  if(echoJob){ echoJob.stop(); return; }
+  stopPlayback();
+  const c=chunks[cur], i=cur;
+  if(!await ensureRef(c,i)) return;
+  try{
+    echoJob=await recAudio(8, t=>$('timer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
+    $('lamp').classList.add('on'); setLive($('echoRec'),true,'● ECHO CHECK','■ STOP');
+    lcd(1,'Perform the backwards sounds… tap ■ when done.');
+    const blob=await echoJob.done;
+    echoJob=null; $('lamp').classList.remove('on'); $('timer').textContent='';
+    setLive($('echoRec'),false,'● ECHO CHECK','■ STOP');
+    const attemptRev=reversePcm(toMono(await decodeBlob(blob)));
+    const url=wavUrl(concatPcm(attemptRev, 0.4, c.fwd));
+    lcd(1,'Playing: your attempt reversed → pause → the real line.');
+    await playUrl(url);
+    player.onended=()=>{ URL.revokeObjectURL(url); player.onended=null;
+      lcd(1,'Close the gap. Loop, echo, repeat. Then TAKE.'); };
+  }catch(e){
+    echoJob=null; $('lamp').classList.remove('on');
+    setLive($('echoRec'),false,'● ECHO CHECK','■ STOP');
+    lcd(1,'Mic error: '+e.message);
+  }
+};
+
+/* ---------- stage / scene ---------- */
+const stage=$('stage'), sctx=stage.getContext('2d');
+const W=720,H=540;
+let curtainPat=null, grainPat=null;
+function makeCurtain(){
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const x=c.getContext('2d');
+  for(let px=0;px<W;px++){
+    const l=0.35+0.65*(Math.sin(px/22*Math.PI*2)*0.5+0.5);
+    x.fillStyle=`rgb(${Math.round(122*l+18)},${Math.round(14*l)},${Math.round(24*l)})`;
+    x.fillRect(px,0,1,H);
+  }
+  const g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(0,0,0,.45)'); g.addColorStop(.25,'rgba(0,0,0,0)');
+  g.addColorStop(.85,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.5)');
+  x.fillStyle=g; x.fillRect(0,0,W,H);
+  return c;
+}
+function makeGrain(){
+  const c=document.createElement('canvas'); c.width=160; c.height=160;
+  const x=c.getContext('2d'); const im=x.createImageData(160,160);
+  for(let i=0;i<im.data.length;i+=4){ const v=Math.random()*255|0; im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=26; }
+  x.putImageData(im,0,0); return c;
+}
+const FACE={cx:360, cy:200, rx:64, ry:84};
+function drawScene(x, vid, grade){
+  if(!curtainPat) curtainPat=makeCurtain();
+  if(!grainPat) grainPat=makeGrain();
+  x.drawImage(curtainPat,0,0,W,H);
+  const fT=H*0.76;
+  x.fillStyle='#e9e2d3'; x.fillRect(0,fT,W,H-fT);
+  x.fillStyle='#0c0a09';
+  let y=fT;
+  for(const frac of [0.26,0.34,0.40]){
+    const rh=(H-fT)*frac, zig=rh*1.7;
+    x.beginPath();
+    for(let px=-zig;px<W+zig;px+=zig*2){
+      x.moveTo(px,y+rh); x.lineTo(px+zig,y); x.lineTo(px+zig*2,y+rh); x.lineTo(px+zig,y+rh); x.closePath();
+    }
+    x.fill(); y+=rh;
+  }
+  x.save();
+  x.fillStyle='#141416';
+  x.beginPath();
+  x.moveTo(238,H); x.lineTo(246,330); x.quadraticCurveTo(250,292,300,282);
+  x.lineTo(420,282); x.quadraticCurveTo(452,290,458,318);
+  x.lineTo(452,352); x.lineTo(440,352); x.lineTo(444,H); x.closePath(); x.fill();
+  x.beginPath(); x.moveTo(246,330); x.quadraticCurveTo(214,360,212,440);
+  x.lineTo(238,446); x.quadraticCurveTo(244,380,262,346); x.closePath(); x.fill();
+  x.fillStyle='#1d1d20';
+  x.beginPath(); x.moveTo(440,300); x.quadraticCurveTo(470,318,452,352); x.lineTo(428,344); x.closePath(); x.fill();
+  x.fillStyle='#e8e2d2';
+  x.beginPath(); x.moveTo(330,284); x.lineTo(390,284); x.lineTo(360,352); x.closePath(); x.fill();
+  x.fillStyle='#3a0d12';
+  x.beginPath(); x.moveTo(352,286); x.lineTo(368,286); x.lineTo(364,344); x.lineTo(360,352); x.lineTo(356,344); x.closePath(); x.fill();
+  x.fillStyle='#caa88a'; x.fillRect(342,262,36,26);
+  x.restore();
+  x.save();
+  x.beginPath(); x.ellipse(FACE.cx,FACE.cy,FACE.rx,FACE.ry,0,0,Math.PI*2); x.clip();
+  if(vid && vid.videoWidth){
+    const vw=vid.videoWidth, vh=vid.videoHeight;
+    const s=Math.max(FACE.rx*2.6/vw, FACE.ry*2.6/vh);
+    const dw=vw*s, dh=vh*s;
+    x.drawImage(vid, FACE.cx-dw/2, FACE.cy-dh/2, dw, dh);
+  } else {
+    x.fillStyle='#0a0a0a'; x.fillRect(FACE.cx-FACE.rx,FACE.cy-FACE.ry,FACE.rx*2,FACE.ry*2);
+    x.strokeStyle='rgba(239,230,208,.5)'; x.setLineDash([6,6]); x.lineWidth=2;
+    x.beginPath(); x.ellipse(FACE.cx,FACE.cy,FACE.rx-4,FACE.ry-4,0,0,Math.PI*2); x.stroke();
+  }
+  x.restore();
+  x.strokeStyle='rgba(0,0,0,.55)'; x.lineWidth=6; x.setLineDash([]);
+  x.beginPath(); x.ellipse(FACE.cx,FACE.cy,FACE.rx,FACE.ry,0,0,Math.PI*2); x.stroke();
+  x.fillStyle='#8f8b84';
+  x.beginPath(); x.ellipse(FACE.cx,FACE.cy-FACE.ry+14,FACE.rx+6,26,0,Math.PI,0); x.fill();
+  if(grade){
+    x.fillStyle='rgba(122,14,24,0.13)'; x.fillRect(0,0,W,H);
+    x.globalAlpha=0.5;
+    x.drawImage(grainPat, Math.random()*80|0, Math.random()*80|0, 160,160, 0,0,W,H);
+    x.globalAlpha=1;
+    if(Math.random()<0.08){ x.fillStyle='rgba(0,0,0,'+(Math.random()*0.06)+')'; x.fillRect(0,0,W,H); }
+  }
+}
+function idleScene(){ drawScene(sctx,null,$('grade').checked); }
+$('grade').onchange=()=>{ if(!camStream) idleScene(); };
+
+/* ---------- TAKE ---------- */
+let camStream=null, camVideo=null, takeJob=null;
+function vMime(){
+  const o=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8,opus','video/webm'];
+  for(const m of o){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
+  return '';
+}
+async function cameraOn(){
+  camStream=await navigator.mediaDevices.getUserMedia({
+    video:{facingMode:'user',width:{ideal:640},height:{ideal:480}}
+  });
+  camVideo=document.createElement('video');
+  camVideo.srcObject=camStream; camVideo.muted=true; camVideo.playsInline=true;
+  camVideo.setAttribute('playsinline',''); await camVideo.play();
+  $('takeRec').disabled=false;
+  (function loop(){ if(!camStream) return; drawScene(sctx,camVideo,$('grade').checked); requestAnimationFrame(loop); })();
+}
+function cameraOff(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  $('takeRec').disabled=true;
+}
+$('camBtn').onclick=async()=>{
+  try{ await cameraOn(); lcd(2,'Camera on. Face in the oval. Tap ● to roll.'); }
+  catch(e){ lcd(2,'Camera blocked: '+e.message); }
+};
+$('takeRec').onclick=async()=>{
+  if(takeJob){ takeJob.stop(); return; }
+  const m=vMime(); if(!m){ lcd(2,'This browser cannot record video.'); return; }
+  const c=chunks[cur], i=cur;
+  try{
+    const micS=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    const combo=new MediaStream([...camStream.getVideoTracks(), ...micS.getAudioTracks()]);
+    const r=new MediaRecorder(combo,{mimeType:m});
+    const parts=[]; r.ondataavailable=e=>{ if(e.data.size) parts.push(e.data); };
+    let iv=null;
+    const done=new Promise(res=>{
+      r.onstop=()=>{ clearInterval(iv); micS.getTracks().forEach(t=>t.stop()); res(new Blob(parts,{type:m})); };
+    });
+    r.start(250);
+    let t=15; $('timer').textContent='0:15';
+    iv=setInterval(()=>{ t--; $('timer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'); if(t<=0)stop(); },1000);
+    function stop(){ if(r.state!=='inactive') r.stop(); }
+    takeJob={stop};
+    $('lamp').classList.add('on'); setLive($('takeRec'),true,'● TAKE','■ CUT');
+    lcd(2,'Rolling. Speak the reversed sounds. Tap ■ to cut.');
+    const blob=await done;
+    takeJob=null; $('lamp').classList.remove('on'); $('timer').textContent='';
+    setLive($('takeRec'),false,'● TAKE','■ CUT');
+    const rec=await vaultAdd(i,'take',blob);          // to disk FIRST
+    c.takeBlob=blob;
+    lcd(2,'Take '+rec.gen+' in the vault ('+(blob.size/1024/1024).toFixed(1)+' MB). Reverse it — or ● for take '+(rec.gen+1)+'.');
+    renderChunk();
+  }catch(e){
+    takeJob=null; $('lamp').classList.remove('on');
+    setLive($('takeRec'),false,'● TAKE','■ CUT');
+    lcd(2,'Recording error: '+e.message);
+  }
+};
+
+/* ---------- reverse engine ---------- */
+const FPS=12;
+function seekTo(v,t){ return new Promise(r=>{ const h=()=>{v.removeEventListener('seeked',h);r();}; v.addEventListener('seeked',h); v.currentTime=t; }); }
+async function getDuration(v){ if(isFinite(v.duration)&&v.duration>0) return v.duration; await seekTo(v,1e7); return v.duration; }
+
+$('revBtn').onclick=async()=>{
+  const c=chunks[cur], i=cur; if(!c.takeBlob) return;
+  const prog=$('prog'); prog.style.display='block'; prog.value=0;
+  $('revBtn').disabled=true;
+  const hadCam=!!camStream;
+  cameraOff();
+  try{
+    lcd(2,'Reversing sound…');
+    const takePcm=reversePcm(await decodeBlob(c.takeBlob));
+
+    lcd(2,'Walking the film backwards…');
+    const v=document.createElement('video');
+    v.src=URL.createObjectURL(c.takeBlob); v.muted=true; v.playsInline=true; v.setAttribute('playsinline','');
+    await new Promise(r=>v.onloadedmetadata=r);
+    const dur=Math.min(await getDuration(v),16);
+    const work=document.createElement('canvas'); work.width=W; work.height=H;
+    const wctx=work.getContext('2d');
+    const frames=[]; const total=Math.max(1,Math.floor(dur*FPS));
+    const grade=$('grade').checked;
+    for(let k=0;k<total;k++){
+      await seekTo(v, Math.min(k/FPS, dur-0.05));
+      drawScene(wctx, v, grade);
+      frames.push(await new Promise(r=>work.toBlob(r,'image/jpeg',0.82)));
+      prog.value=Math.round(60*k/total);
+    }
+    URL.revokeObjectURL(v.src);
+
+    lcd(2,'Recording the other side…');
+    const a=new (window.AudioContext||window.webkitAudioContext)();
+    if(a.state==='suspended') await a.resume();
+    const abuf=a.createBuffer(1, takePcm.ch[0].length, takePcm.rate);
+    abuf.getChannelData(0).set(takePcm.ch[0]);
+    const out=document.createElement('canvas'); out.width=W; out.height=H;
+    const octx=out.getContext('2d');
+    const vs=out.captureStream(FPS);
+    const dest=a.createMediaStreamDestination();
+    const sn=a.createBufferSource(); sn.buffer=abuf; sn.connect(dest);
+    const combo=new MediaStream([...vs.getVideoTracks(), ...dest.stream.getAudioTracks()]);
+    const mime=vMime();
+    const rec=new MediaRecorder(combo,{mimeType:mime});
+    const parts=[]; rec.ondataavailable=e=>{ if(e.data.size) parts.push(e.data); };
+    const done=new Promise(r=>rec.onstop=r);
+    let idx=frames.length-1;
+    const paint=async k=>{ const b=await createImageBitmap(frames[k]); octx.drawImage(b,0,0); b.close&&b.close(); };
+    await paint(idx);
+    rec.start(250); sn.start();
+    const t0=performance.now();
+    await new Promise(res=>{
+      const tick=async()=>{
+        const want=frames.length-1-Math.floor((performance.now()-t0)/1000*FPS);
+        if(want<0){ res(); return; }
+        if(want<idx){ idx=want; await paint(idx); prog.value=60+Math.round(40*(1-idx/frames.length)); }
+        setTimeout(tick,1000/FPS/2);
+      };
+      tick();
+    });
+    setTimeout(()=>rec.stop(),300); await done; a.close();
+
+    const resultBlob=new Blob(parts,{type:mime});
+    const row=await vaultAdd(i,'result',resultBlob);   // to disk FIRST
+    if(c.resultUrl) URL.revokeObjectURL(c.resultUrl);
+    c.resultBlob=resultBlob; c.resultUrl=URL.createObjectURL(resultBlob);
+    lcd(2,'Reversed take '+row.gen+' vaulted. '+(hadCam?'Tap CAMERA ON for the next take.':'Advance ▶ and pass the phone.'));
+    prog.style.display='none';
+    renderChunk(); renderReel();
+  }catch(e){ lcd(2,'Slipped through the curtain: '+e.message); prog.style.display='none'; }
+  $('revBtn').disabled=false;
+};
+
+/* ---------- save / share / reel ---------- */
+function ext(b){ return (b.type||'').includes('mp4')?'mp4':'webm'; }
+function rowName(r){ return 'lodge-'+String(r.chunkIdx+1).padStart(2,'0')+'-g'+r.gen+'.'+ext(r.blob); }
+function saveRow(r){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(r.blob);
+  a.download=rowName(r); a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+async function shareRow(r){
+  const f=new File([r.blob],rowName(r),{type:r.blob.type});
+  if(navigator.canShare && navigator.canShare({files:[f]})){
+    try{ await navigator.share({files:[f], title:rowName(r)}); }catch(e){}
+  } else saveRow(r);
+}
+$('saveBtn').onclick=()=>{ const r=latest(cur,'result'); if(r) saveRow(r); };
+$('shareBtn').onclick=()=>{ const r=latest(cur,'result'); if(r) shareRow(r); };
+
+function renderReel(){
+  const reel=$('reel'); reel.innerHTML='';
+  const results=rows.filter(r=>r.kind==='result').sort((a,b)=>a.chunkIdx-b.chunkIdx || a.gen-b.gen);
+  if(!results.length){ reel.innerHTML='<div class="lbl" style="padding:8px 4px">NO REVERSED TAKES YET.</div>'; return; }
+  results.forEach(r=>{
+    const d=document.createElement('div'); d.className='reel-item';
+    const text=(chunks[r.chunkIdx]?chunks[r.chunkIdx].text:'?').slice(0,22);
+    const when=new Date(r.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    d.innerHTML='<span class="rlbl">'+String(r.chunkIdx+1).padStart(2,'0')+' g'+r.gen+' · '+when+'<br>'+text+'…</span>';
+    const p=document.createElement('button'); p.textContent='▶';
+    p.onclick=()=>{ const u=URL.createObjectURL(r.blob); const rv=$('resultVid');
+      $('m2').click(); rv.src=u; rv.style.display='block'; rv.play(); };
+    const s=document.createElement('button'); s.textContent='SAVE'; s.onclick=()=>saveRow(r);
+    const sh=document.createElement('button'); sh.textContent='SHARE'; sh.onclick=()=>shareRow(r);
+    const del=document.createElement('button'); del.textContent='✕'; del.className='danger';
+    del.onclick=async()=>{
+      if(!confirm('Delete '+rowName(r)+' from the vault?')) return;
+      await dbDel('media',r.id);
+      rows=rows.filter(x=>x.id!==r.id);
+      const c=chunks[r.chunkIdx];
+      if(c && c.resultBlob===r.blob){ c.resultBlob=null; if(c.resultUrl){URL.revokeObjectURL(c.resultUrl);c.resultUrl=null;} hydrateChunk(r.chunkIdx); }
+      renderReel(); renderLedger(); renderChunk();
+    };
+    d.append(p,s,sh,del); reel.appendChild(d);
+  });
+}
+$('exportAll').onclick=()=>{
+  const results=rows.filter(r=>r.kind==='result');
+  let delay=0;
+  results.forEach(r=>{ setTimeout(()=>saveRow(r), delay); delay+=700; });
+  lcd(2,'Exporting '+results.length+' files to your downloads…');
+};
+
+/* ---------- boot: restore the session ---------- */
+(async function boot(){
+  try{
+    const savedScript=await dbGetMeta('script');
+    if(savedScript) $('scriptBox').value=savedScript;
+    rows=await dbAll('media');
+    await loadScript(false);
+    idleScene();
+    const takes=rows.filter(r=>r.kind==='take').length;
+    if(rows.length){
+      lcd(0,'Session restored from vault: '+new Set(rows.filter(r=>r.kind==='ref').map(r=>r.chunkIdx)).size
+        +' refs, '+takes+' takes, '+rows.filter(r=>r.kind==='result').length+' reversed.');
+    }
+  }catch(e){
+    chunks.length||await loadScript(false);
+    idleScene();
+    lcd(0,'Vault unavailable ('+e.message+') — running without persistence.');
+  }
+})();
+</script>
+</body>
+</html>
