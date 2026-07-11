@@ -65,7 +65,7 @@ body{font-family:var(--label);}
   font-family:var(--label);font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#fff;}
 .recbtn:active{transform:scale(.95);}
 
-.chips{width:100%;display:flex;flex-direction:column;gap:11px;}
+.chips{width:100%;display:flex;flex-direction:column;gap:8px;}
 .homegrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;align-items:start;}
 .colwrap{display:flex;gap:10px;align-items:stretch;}
 .rail{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:34px;}
@@ -74,8 +74,8 @@ body{font-family:var(--label);}
 .rail span{font-family:var(--label);font-size:8px;letter-spacing:.22em;color:rgba(239,230,208,.55);
   writing-mode:vertical-rl;text-orientation:mixed;}
 .chip{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
-  background:rgba(61,6,12,.35);border:1px solid rgba(122,14,24,.6);border-radius:12px;
-  padding:15px 14px;color:var(--cream);font-family:var(--tele);font-size:16.5px;line-height:1.35;}
+  background:linear-gradient(180deg,rgba(61,6,12,.5),rgba(30,4,7,.35));border:1px solid rgba(122,14,24,.7);border-radius:12px;
+  padding:11px 13px;color:var(--cream);font-family:var(--tele);font-size:15.5px;line-height:1.3;}
 .chip .dots{font-size:10px;letter-spacing:2px;color:var(--neon);opacity:.9;flex:0 0 auto;}
 .chip.kept{opacity:.38;}
 .chip .keptbadge{margin-left:auto;flex:0 0 auto;font-family:var(--label);font-size:9px;
@@ -138,25 +138,24 @@ input[type=file]{display:none;}
 <!-- ================= HOME ================= -->
 <div class="screen on" id="scr-home">
   <button class="gear" id="gearBtn">⚙</button>
+  <button class="homebtn" id="reelBtn" style="opacity:.7">▣ THE REEL · <span id="reelCount">0</span></button>
   <div class="content">
-    <div class="tracked" style="font-size:11px">Welcome To</div>
-    <div class="display big" style="font-size:clamp(38px,8vw,58px)">Lucy's Lodge</div>
-    <div class="tracked dim" style="margin-top:4px;font-size:9px">Choose A Message</div>
+    <div class="tracked" style="font-size:12px">Welcome To</div>
+    <div class="display big" style="font-size:clamp(54px,11vw,86px);letter-spacing:.01em">Lucy's Lodge</div>
+    <div class="tracked dim" style="margin-top:6px;font-size:10px">Choose A Message</div>
     <div class="homegrid" style="margin-top:14px">
       <div class="colwrap">
         <div class="rail"><span>EASY</span><i></i><span>HARD</span></div>
         <div style="flex:1;min-width:0">
           <div class="bankhead"><span class="tracked">Less Lynchian</span></div>
           <div class="chips" id="bankSweet"></div>
-          <div style="height:14px"></div>
-          <button class="chip feature" id="freestyleBtn" style="border-color:rgba(127,255,158,.5)">
-            <span><b style="font-family:var(--label);font-size:13px;letter-spacing:.18em">SAY YOUR OWN MESSAGE</b><br>
-            <span style="opacity:.7;font-size:13px">Record it forward · hear it backwards · into the room.</span></span>
-          </button>
-          <div style="height:10px"></div>
-          <button class="chip feature" id="reelBtn">
-            <span><b style="font-family:var(--label);font-size:13px;letter-spacing:.18em">THE REEL</b><br>
-            <span style="opacity:.7;font-size:13px" id="reelCount">Nothing kept yet.</span></span>
+          <div style="height:16px"></div>
+          <button class="chip" id="freestyleBtn" style="flex-direction:column;align-items:center;text-align:center;gap:8px;
+            padding:26px 16px;border:1px solid var(--neon);
+            box-shadow:0 0 22px rgba(127,255,158,.35), inset 0 0 18px rgba(127,255,158,.07)">
+            <b style="font-family:var(--label);font-size:16px;letter-spacing:.22em;color:var(--neon);
+              text-shadow:0 0 12px rgba(127,255,158,.6)">SAY YOUR OWN MESSAGE</b>
+            <span style="opacity:.75;font-size:14px">Record it forward · hear it backwards · into the room.</span>
           </button>
         </div>
       </div>
@@ -203,7 +202,7 @@ input[type=file]{display:none;}
   <div class="content" style="justify-content:center">
     <div class="tracked">Once Per Night</div>
     <div class="display mid">Open The<br>Stage</div>
-    <div class="lcd" style="max-width:380px;margin-top:16px">The room needs your eyes and your voice.<br>We ask once per visit. Keep the app open all party — if it's fully closed, iOS makes us ask again.</div>
+    <div class="lcd" style="max-width:380px;margin-top:16px">The room needs your eyes and your voice.<br>If the Lodge sits idle, it lets the camera go to save battery — iPadOS may ask again when you return. Tip: in Safari, tap aA → Website Settings → set Camera and Microphone to Allow, and it will never ask twice.</div>
     <div class="gap"></div>
     <button class="plate primary" id="permBtn">Enter The Lodge</button>
     <div class="lcd" id="permLcd"></div>
@@ -268,7 +267,7 @@ input[type=file]{display:none;}
     <div id="pracGesture" style="display:none;text-align:center;margin-top:10px">
       <img id="pracGestureImg" style="max-width:220px;max-height:160px;border-radius:10px;border:1px solid rgba(127,255,158,.5)">
       <div id="pracGesturePh" style="width:200px;height:120px;margin:0 auto;border:1px dashed rgba(239,230,208,.4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:.15em;color:rgba(239,230,208,.5)">GESTURE IMAGE<br>(LOAD IN SETTINGS)</div>
-      <div class="lcd" style="margin-top:6px">MAKE THIS GESTURE ON THE FINAL WORD — lie-w'NEAM. REVERSED, IT OPENS THE FILM.</div>
+      <div class="lcd" style="margin-top:6px">MAKE THE GESTURE FIRST, HOLD IT A BEAT, THEN SPEAK. REVERSED, IT LANDS AT THE END OF THE FILM.</div>
     </div>
     <div class="gap"></div>
     <div class="row">
@@ -299,7 +298,7 @@ input[type=file]{display:none;}
       <div class="teletext" id="roomScript"></div>
       <div id="roomGesture" style="display:none;margin-top:8px;text-align:center">
         <img id="roomGestureImg" style="max-width:170px;max-height:120px;border-radius:10px;border:1px solid rgba(127,255,158,.6);box-shadow:0 2px 14px rgba(0,0,0,.7)">
-        <div class="tracked dim" style="font-size:8px;margin-top:4px">GESTURE ON THE FINAL WORD</div>
+        <div class="tracked dim" style="font-size:8px;margin-top:4px">GESTURE FIRST · THEN SPEAK</div>
       </div>
       <div class="spacer"></div>
       <div class="countnum" id="roomCount" style="display:none"></div>
@@ -365,8 +364,8 @@ input[type=file]{display:none;}
 /* ============================================================
    LUCY'S LODGE v5 — party build
 ============================================================ */
-const APP_VERSION='6.1.0';
-const DATA = {"lines": [{"n": 1, "bank": "sweet", "diff": "EASY", "text": "We love you, Lucy.", "script": "ee-SOOLE  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW"}, {"n": 2, "bank": "sweet", "diff": "EASY", "text": "See you soon, Lucy.", "script": "ee-SOOLE  \u00b7  NOOSE  \u00b7  OOEE  \u00b7  EES"}, {"n": 3, "bank": "sweet", "diff": "EASY", "text": "Hello, Lucy. This is not goodbye.", "script": "EYE-b'duug  \u00b7  TAHN  \u00b7  ZIH  \u00b7  SIHTH  \u00b7  ee-SOOLE  \u00b7  OH-luhh"}, {"n": 4, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 5, "bank": "sweet", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 6, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there, after and always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 7, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}, {"n": 8, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 9, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 10, "bank": "peaks", "diff": "EASY", "text": "Lucy, you will never be gone.", "script": "NAWG  \u00b7  EEB  \u00b7  ur-VENN  \u00b7  LEW  \u00b7  OOEE  \u00b7  ee-SOOLE"}, {"n": 11, "bank": "peaks", "diff": "EASY", "text": "Lola knows the way to Madison.", "script": "nuh-suh-DAMN  \u00b7  UTTE  \u00b7  YEHW  \u00b7  uhth  \u00b7  ZONE  \u00b7  uhh-LOAL"}, {"n": 12, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 13, "bank": "peaks", "diff": "EASY", "text": "We are waving. Can you see us?", "script": "SUH  \u00b7  EES  \u00b7  OOEE  \u00b7  KNACK  \u00b7  ngih-VYEHW  \u00b7  RAW  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways.", "script": "ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 15, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 16, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 17, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 18, "bank": "peaks", "diff": "EASY", "text": "Meanwhile. We will always love you.", "script": "OOEE  \u00b7  VUHL  \u00b7  zay-w'LAW  \u00b7  LEW  \u00b7  EW  \u00b7  lie-w'NEAM", "gesture": true}, {"n": 19, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 20, "bank": "peaks", "diff": "EASY", "text": "We will see you in twenty five years. Or sooner.", "script": "ur-NOOSE  \u00b7  RAW  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 21, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 22, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}]};
+const APP_VERSION='6.2.0';
+const DATA = {"lines": [{"n": 1, "bank": "sweet", "diff": "EASY", "text": "We love you, Lucy.", "script": "ee-SOOLE  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW"}, {"n": 2, "bank": "sweet", "diff": "EASY", "text": "See you soon, Lucy.", "script": "ee-SOOLE  \u00b7  NOOSE  \u00b7  OOEE  \u00b7  EES"}, {"n": 3, "bank": "sweet", "diff": "EASY", "text": "Hello, Lucy. This is not goodbye.", "script": "EYE-b'duug  \u00b7  TAHN  \u00b7  ZIH  \u00b7  SIHTH  \u00b7  ee-SOOLE  \u00b7  OH-luhh"}, {"n": 4, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 5, "bank": "sweet", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 6, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there, after and always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 7, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}, {"n": 8, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 9, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 10, "bank": "peaks", "diff": "EASY", "text": "Lucy, you will never be gone.", "script": "NAWG  \u00b7  EEB  \u00b7  ur-VENN  \u00b7  LEW  \u00b7  OOEE  \u00b7  ee-SOOLE"}, {"n": 11, "bank": "peaks", "diff": "EASY", "text": "Lola knows the way to Madison.", "script": "nuh-suh-DAMN  \u00b7  UTTE  \u00b7  YEHW  \u00b7  uhth  \u00b7  ZONE  \u00b7  uhh-LOAL"}, {"n": 12, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 13, "bank": "peaks", "diff": "EASY", "gesture": true, "text": "We are waving. Can you see us?", "script": "SUH  \u00b7  EES  \u00b7  OOEE  \u00b7  KNACK  \u00b7  ngih-VYEHW  \u00b7  RAW  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways.", "script": "ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 15, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 16, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 17, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 18, "bank": "peaks", "diff": "EASY", "text": "Meanwhile. We will always love you.", "script": "OOEE  \u00b7  VUHL  \u00b7  zay-w'LAW  \u00b7  LEW  \u00b7  EW  \u00b7  lie-w'NEAM", "gesture": true}, {"n": 19, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 20, "bank": "peaks", "diff": "EASY", "text": "We will see you in twenty five years. Or sooner.", "script": "ur-NOOSE  \u00b7  RAW  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 21, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 22, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}]};
 const $=id=>document.getElementById(id);
 
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
@@ -410,6 +409,14 @@ function toMono(p){ if(p.ch.length===1)return p;
   const n=p.ch[0].length,out=new Float32Array(n);
   for(let i=0;i<n;i++){let s=0;for(const c of p.ch)s+=c[i];out[i]=s/p.ch.length;}
   return {rate:p.rate,ch:[out]}; }
+function normalizePcm(p){
+  let peak=0;
+  for(const c of p.ch) for(let i=0;i<c.length;i++){ const a=Math.abs(c[i]); if(a>peak)peak=a; }
+  if(peak<0.001||peak>=0.95) return p;
+  const g=0.95/peak;
+  for(const c of p.ch) for(let i=0;i<c.length;i++) c[i]*=g;
+  return p;
+}
 function reversePcm(p){ return {rate:p.rate,ch:p.ch.map(c=>{const d=Float32Array.from(c);Array.prototype.reverse.call(d);return d;})}; }
 function pcmToWav(p){ const chs=p.ch,n=chs[0].length,nc=chs.length,rate=p.rate;
   const bytes=44+n*nc*2,buf=new ArrayBuffer(bytes),dv=new DataView(buf);
@@ -431,7 +438,7 @@ let camStream=null, micTrack=null, camVideo=null;
 async function openStage(){
   const s=await navigator.mediaDevices.getUserMedia({
     video:{facingMode:'user',width:{ideal:720},height:{ideal:960}},
-    audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
+    audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}   // raw voice — gating chops reversed audio
   });
   camStream=new MediaStream(s.getVideoTracks());
   micTrack=s.getAudioTracks()[0];
@@ -445,12 +452,12 @@ function recMime(kinds){ const o=kinds==='a'?['audio/mp4','audio/webm;codecs=opu
   :['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8,opus','video/webm'];
   for(const m of o){ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; } return ''; }
 function recordStream(stream,mime,maxSec,onTick){
-  const r=new MediaRecorder(stream,{mimeType:mime});
+  const r=new MediaRecorder(stream,{mimeType:mime,audioBitsPerSecond:256000,videoBitsPerSecond:5000000});
   const parts=[];r.ondataavailable=e=>{if(e.data.size)parts.push(e.data);};
   let iv=null;
   const done=new Promise(res=>{ r.onstop=()=>{clearInterval(iv);micTrack.enabled=false;res(new Blob(parts,{type:mime}));}; });
   micTrack.enabled=true;
-  r.start(250);
+  r.start();                                     // one continuous blob — no chunk seams
   let t=maxSec;onTick&&onTick(t);
   iv=setInterval(()=>{t--;onTick&&onTick(t);if(t<=0)stop();},1000);
   function stop(){ if(r.state!=='inactive')r.stop(); }
@@ -461,13 +468,16 @@ function recordStream(stream,mime,maxSec,onTick){
 const screens=document.querySelectorAll('.screen');
 let currentScreen='scr-home';
 const CAM_SCREENS=['scr-forward','scr-room'];
+let idleT=null;
 function camPower(on){
   if(!camStream)return;
-  camStream.getVideoTracks().forEach(t=>t.enabled=on);   // sleep the sensor, keep the permission
+  camStream.getVideoTracks().forEach(t=>t.enabled=on);   // instant sleep between screens
 }
 function show(id){ screens.forEach(s=>s.classList.toggle('on',s.id===id)); currentScreen=id;
   stopPlay(); if(typeof stopScrub==='function') stopScrub();          // nothing audible survives a screen change
   camPower(CAM_SCREENS.includes(id));
+  clearTimeout(idleT);
+  if(!CAM_SCREENS.includes(id)) idleT=setTimeout(releaseStage,45000);   // 45s idle → full release
   if(id!=='scr-room'&&id!=='scr-forward'){ stopRoomLoop(); }
   if(id==='scr-home'){ renderHome(); } }
 document.querySelectorAll('.nav-home').forEach(b=>b.onclick=()=>{ stopPlay(); abortAnyRec(); show('scr-home'); });
@@ -496,9 +506,8 @@ function renderHome(){
     });
   };
   mk('peaks',$('bankPeaks')); mk('sweet',$('bankSweet'));
-  const keptN=rows.filter(r=>r.kind==='result'&&r.kept).length;
   const allN=rows.filter(r=>r.kind==='result').length;
-  $('reelCount').textContent = allN? (keptN+' kept · '+allN+' filmed tonight') : 'Nothing filmed yet.';
+  $('reelCount').textContent = allN;
 }
 async function freestyleStart(){
   sel=null;
@@ -518,11 +527,19 @@ function stageAlive(){
   return camStream && micTrack && micTrack.readyState==='live'
     && camStream.getVideoTracks()[0] && camStream.getVideoTracks()[0].readyState==='live';
 }
+function releaseStage(){                       // curtains down: indicators off, battery safe
+  try{ if(camStream)camStream.getTracks().forEach(t=>t.stop()); }catch(e){}
+  try{ if(micTrack)micTrack.stop(); }catch(e){}
+  camStream=null; micTrack=null; camVideo=null;
+}
 async function ensureStage(){
   if(stageAlive()) return true;
-  camStream=null; micTrack=null;
-  show('scr-perm'); 
-  return new Promise(res=>{ pendingAfterPerm=res; });
+  releaseStage();
+  try{ await openStage(); return true; }        // silent re-acquire first
+  catch(e){
+    show('scr-perm');
+    return new Promise(res=>{ pendingAfterPerm=res; });
+  }
 }
 $('permBtn').onclick=async()=>{
   $('permLcd').textContent='';
@@ -554,7 +571,7 @@ function drawCameraCover(x,W,H){
   x.fillStyle='#000';x.fillRect(0,0,W,H);
   if(!camVideo||!camVideo.videoWidth)return;
   const vw=camVideo.videoWidth,vh=camVideo.videoHeight;
-  const s=Math.max(W/vw,H/vh),dw=vw*s,dh=vh*s;
+  const s=Math.min(W/vw,H/vh),dw=vw*s,dh=vh*s;   // whole frame visible — no zoom-crop
   x.save();x.translate(W,0);x.scale(-1,1);
   x.drawImage(camVideo,(W-dw)/2,(H-dh)/2,dw,dh);x.restore();
   x.fillStyle='rgba(122,14,24,.08)';x.fillRect(0,0,W,H);
@@ -578,7 +595,7 @@ $('fwdRecBtn').onclick=async()=>{
   $('fwdRec').style.display='none'; $('fwdRecBtn').innerHTML='Say It<br>Forward';
   if(currentScreen!=='scr-forward') return;   // user bailed via Home
   await vaultAdd({lineN:sel?sel.n:0,kind:'ref',blob});
-  refPcm=toMono(await decodeBlob(blob));
+  refPcm=normalizePcm(toMono(await decodeBlob(blob)));
   refRevPcm=reversePcm(refPcm);
   refFwdUrl=URL.createObjectURL(pcmToWav(refPcm));
   refRevUrl=URL.createObjectURL(pcmToWav(refRevPcm));
@@ -646,7 +663,7 @@ $('closeBtn').onclick=async()=>{
   activeJob=recordStream(new MediaStream([micTrack]),recMime('a'),20,()=>{});
   const blob=await activeJob.done; activeJob=null;
   $('closeBtn').textContent='Am I Close?';
-  const attempt=toMono(await decodeBlob(blob));
+  const attempt=normalizePcm(toMono(await decodeBlob(blob)));
   const attemptRev=reversePcm(attempt);
   const url=URL.createObjectURL(pcmToWav(attemptRev));
   $('pracLcd').textContent='Your try, flipped… then the real line.';
@@ -768,7 +785,7 @@ function onSegResults(res){
   maskX.clearRect(0,0,RW,RH);
   maskX.translate(RW,0);maskX.scale(-1,1);
   const iw=res.image.width,ih=res.image.height;
-  const TARGET=0.70*RH;                                  // person ~70% of room height
+  const TARGET=0.80*RH;                                  // person ~70% of room height
   const s=Math.max(TARGET/ih, RW*0.9/iw),dw=iw*s,dh=ih*s,ox=(RW-dw)/2,oy=RH-dh;  // stand on the floor
   maskX.filter='blur(3px)';
   maskX.drawImage(res.segmentationMask,ox,oy,dw,dh);
@@ -876,7 +893,7 @@ async function processTake(blob,srcMime){
   const caption= sel? '“'+currentFwdText()+'”' : '[ speaking in Lodge ]';
   try{
     $('procLcd').textContent='reversing the sound…';
-    const pcm=reversePcm(await decodeBlob(blob));
+    const pcm=reversePcm(normalizePcm(toMono(await decodeBlob(blob))));
     $('procLcd').textContent='unspooling the room…';
     const v=document.createElement('video');
     v.src=URL.createObjectURL(blob);v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');
@@ -993,7 +1010,7 @@ $('exportAllBtn').onclick=()=>{
 };
 
 /* ---------- boot ---------- */
-document.getElementById('verBadge').textContent='v'+'6.1.0';
+document.getElementById('verBadge').textContent='v'+'6.2.0';
 (async function boot(){
   try{
     rows=await dbAll('media');
