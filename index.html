@@ -65,15 +65,16 @@ body{font-family:var(--label);}
   font-family:var(--label);font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#fff;}
 .recbtn:active{transform:scale(.95);}
 
-.chips{width:100%;display:flex;flex-direction:column;gap:10px;}
-.chip{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
-  background:rgba(61,6,12,.35);border:1px solid rgba(122,14,24,.6);border-radius:12px;
-  padding:15px 16px;color:var(--cream);font-family:var(--tele);font-size:17px;line-height:1.3;}
+.chips{width:100%;display:flex;flex-direction:column;gap:6px;}
+.homegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;align-items:start;}
+.chip{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  background:rgba(61,6,12,.35);border:1px solid rgba(122,14,24,.6);border-radius:10px;
+  padding:9px 10px;color:var(--cream);font-family:var(--tele);font-size:12.5px;line-height:1.3;}
 .chip .dots{font-size:10px;letter-spacing:2px;color:var(--neon);opacity:.9;flex:0 0 auto;}
 .chip.kept{opacity:.38;}
 .chip .keptbadge{margin-left:auto;flex:0 0 auto;font-family:var(--label);font-size:9px;
   letter-spacing:.25em;color:var(--neon);border:1px solid rgba(127,255,158,.5);border-radius:999px;padding:4px 9px;}
-.bankhead{margin:26px 0 12px;display:flex;width:100%;justify-content:space-between;align-items:baseline;}
+.bankhead{margin:6px 0 8px;display:flex;width:100%;justify-content:space-between;align-items:baseline;}
 .bankhead .tracked{text-align:left;text-indent:0;letter-spacing:.3em;font-size:12px;}
 .bankhead .sub{font-size:9px;letter-spacing:.25em;opacity:.45;text-transform:uppercase;}
 
@@ -132,27 +133,30 @@ input[type=file]{display:none;}
 <div class="screen on" id="scr-home">
   <button class="gear" id="gearBtn">⚙</button>
   <div class="content">
-    <div class="gap"></div>
-    <div class="tracked">Welcome To</div>
-    <div class="display big">Lucy's<br>Lodge</div>
-    <div class="tracked dim" style="margin-top:10px">Choose A Message</div>
-
-    <div class="bankhead"><span class="tracked">Twin Peaks Style</span><span class="sub">Easiest → Hardest</span></div>
-    <div class="chips" id="bankPeaks"></div>
-    <div class="bankhead"><span class="tracked">Sweet Messages</span><span class="sub"></span></div>
-    <div class="chips" id="bankSweet"></div>
-
-    <div class="gap"></div>
-    <button class="chip" id="freestyleBtn" style="border-color:rgba(127,255,158,.5)">
-      <span class="dots">◆</span><span><b style="font-family:var(--label);font-size:12px;letter-spacing:.2em">FREESTYLE</b><br>
-      <span style="opacity:.7;font-size:14px">Think you can just do it? Step in.</span></span>
-    </button>
-    <button class="chip" id="reelBtn">
-      <span class="dots">▣</span><span><b style="font-family:var(--label);font-size:12px;letter-spacing:.2em">THE REEL</b><br>
-      <span style="opacity:.7;font-size:14px" id="reelCount">Nothing kept yet.</span></span>
-    </button>
-    <div class="lcd" id="homeLcd">ee-SOOL</div>
-    <div class="gap"></div>
+    <div class="tracked" style="font-size:11px">Welcome To</div>
+    <div class="display big" style="font-size:clamp(38px,8vw,58px)">Lucy's Lodge</div>
+    <div class="tracked dim" style="margin-top:4px;font-size:9px">Choose A Message</div>
+    <div class="homegrid" style="margin-top:10px">
+      <div>
+        <div class="bankhead"><span class="tracked">Sweet</span><span class="sub">easy → hard</span></div>
+        <div class="chips" id="bankSweet"></div>
+      </div>
+      <div>
+        <div class="bankhead"><span class="tracked">Twin Peaks</span><span class="sub">easy → hard</span></div>
+        <div class="chips" id="bankPeaks"></div>
+      </div>
+    </div>
+    <div class="homegrid" style="margin-top:8px">
+      <button class="chip" id="freestyleBtn" style="border-color:rgba(127,255,158,.5)">
+        <span><b style="font-family:var(--label);font-size:11px;letter-spacing:.18em">SAY YOUR OWN MESSAGE</b><br>
+        <span style="opacity:.7;font-size:12px">No script. Straight to the room.</span></span>
+      </button>
+      <button class="chip" id="reelBtn">
+        <span><b style="font-family:var(--label);font-size:11px;letter-spacing:.18em">THE REEL</b><br>
+        <span style="opacity:.7;font-size:12px" id="reelCount">Nothing kept yet.</span></span>
+      </button>
+    </div>
+    <div class="lcd" id="homeLcd" style="margin-top:6px;font-size:9px">ee-SOOL</div>
   </div>
 </div>
 
@@ -167,6 +171,10 @@ input[type=file]{display:none;}
     <button class="plate" id="loadBackdropBtn">Load Backdrop Image</button>
     <label class="lcd" id="backdropStatus">No backdrop loaded — the painted curtains will be used.</label>
     <input type="file" id="backdropFile" accept="image/*">
+    <div class="gap"></div>
+    <button class="plate" id="loadGestureBtn">Load Gesture Image (Meanwhile)</button>
+    <label class="lcd" id="gestureStatus">No gesture image — a placeholder will show on the Meanwhile line.</label>
+    <input type="file" id="gestureFile" accept="image/*">
     <div class="gap"></div>
     <button class="plate" id="resetBoardBtn">Reset The Board (keeps all films)</button>
     <div class="lcd">Un-grays every message so the night can start fresh. Nothing is deleted.</div>
@@ -227,7 +235,10 @@ input[type=file]{display:none;}
     <div class="gap"></div><div class="gap"></div>
     <button class="plate primary" id="toPracticeBtn">I'm Ready To Practice</button>
     <div class="gap"></div>
-    <button class="plate ghost" id="skipPracticeBtn">Skip Practice →</button>
+    <div class="row">
+      <button class="plate ghost" id="reRecordBtn">↺ Re-Record</button>
+      <button class="plate ghost" id="skipPracticeBtn">Skip Practice →</button>
+    </div>
     <div class="lcd" id="listenLcd"></div>
   </div>
 </div>
@@ -241,8 +252,11 @@ input[type=file]{display:none;}
     <div class="gap"></div>
     <div class="teletext" id="pracScript" style="font-size:clamp(30px,6vw,50px)"></div>
     <div class="disclaimer">These spellings are a map, not the territory. Trust the sound you practiced.</div>
-    <div class="gap"></div>
-    <button class="togglechip off" id="tagToggle">+ "Lucy, We Love You"</button>
+    <div id="pracGesture" style="display:none;text-align:center;margin-top:10px">
+      <img id="pracGestureImg" style="max-width:220px;max-height:160px;border-radius:10px;border:1px solid rgba(127,255,158,.5)">
+      <div id="pracGesturePh" style="width:200px;height:120px;margin:0 auto;border:1px dashed rgba(239,230,208,.4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:.15em;color:rgba(239,230,208,.5)">GESTURE IMAGE<br>(LOAD IN SETTINGS)</div>
+      <div class="lcd" style="margin-top:6px">MAKE THIS GESTURE ON THE FINAL WORD — lie-w'NEAM. REVERSED, IT OPENS THE FILM.</div>
+    </div>
     <div class="gap"></div>
     <div class="row">
       <button class="plate" style="max-width:200px" id="halfBtn">▶ ¾ Speed</button>
@@ -259,6 +273,8 @@ input[type=file]{display:none;}
     <div class="gap"></div>
     <button class="plate primary" id="toRoomBtn">I'm Ready</button>
     <div class="gap"></div>
+    <button class="plate ghost" id="backToListenBtn">← Back To Listen</button>
+    <div class="gap"></div>
   </div>
 </div>
 
@@ -268,6 +284,10 @@ input[type=file]{display:none;}
     <canvas class="stage" id="roomCanvas" width="720" height="960"></canvas>
     <div class="overlay" style="padding:max(60px,env(safe-area-inset-top)) 22px 30px">
       <div class="teletext" id="roomScript"></div>
+      <div id="roomGesture" style="display:none;margin-top:8px;text-align:center">
+        <img id="roomGestureImg" style="max-width:170px;max-height:120px;border-radius:10px;border:1px solid rgba(127,255,158,.6);box-shadow:0 2px 14px rgba(0,0,0,.7)">
+        <div class="tracked dim" style="font-size:8px;margin-top:4px">GESTURE ON THE FINAL WORD</div>
+      </div>
       <div class="spacer"></div>
       <div class="countnum" id="roomCount" style="display:none"></div>
       <div class="spacer"></div>
@@ -332,10 +352,8 @@ input[type=file]{display:none;}
 /* ============================================================
    LUCY'S LODGE v5 — party build
 ============================================================ */
-const APP_VERSION='5.1.2';
-const DATA = {"lines": [{"n": 1, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 2, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 3, "bank": "peaks", "diff": "MEDIUM", "text": "Lola has already visited Wisconsin. In her sleep.", "script": "PEELS  \u00b7  URR  \u00b7  nih  \u00b7  nuh-s'NA-k'sew  \u00b7  dih-tih-ZIHV  \u00b7  ee-DEH-r'law  \u00b7  ZAH  \u00b7  uhh-LOAL"}, {"n": 4, "bank": "peaks", "diff": "MEDIUM", "text": "Your dissertation is already written. It is waiting inside.", "script": "DIE-s'nih  \u00b7  ngih-TYEHW  \u00b7  ZIH  \u00b7  TIH  \u00b7  nuh-TIHR  \u00b7  ee-DEH-r'law  \u00b7  ZIH  \u00b7  nuh-SHEA-ter-sid  \u00b7  ROY"}, {"n": 5, "bank": "peaks", "diff": "EASY", "text": "Your friends are not gone. They are only reversed.", "script": "t'SIR-veer  \u00b7  ee-l'NO  \u00b7  RAW  \u00b7  AITH  \u00b7  NAWG  \u00b7  TAHN  \u00b7  RAW  \u00b7  z'd'NEHRF  \u00b7  ROY"}, {"n": 6, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 7, "bank": "peaks", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 8, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 9, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways. Slowly.", "script": "ee-LWOHLS  \u00b7  ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 10, "bank": "peaks", "diff": "MEDIUM", "text": "You are not leaving. You are being continued.", "script": "do-y'NIH-t'nuhk  \u00b7  ngih-EEB  \u00b7  RAW  \u00b7  OOEE  \u00b7  ngih-VEAL  \u00b7  TAHN  \u00b7  RAW  \u00b7  OOEE"}, {"n": 11, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}, {"n": 12, "bank": "peaks", "diff": "MEDIUM", "text": "Baltimore taught you the dark. Madison will teach the cold.", "script": "d'LOAK  \u00b7  uhth  \u00b7  t'SHEET  \u00b7  LEW  \u00b7  nuh-suh-DAMN  \u00b7  k'ROD  \u00b7  uhth  \u00b7  OOEE  \u00b7  TAUGHT  \u00b7  raw-muh-t'LAWB"}, {"n": 13, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 15, "bank": "peaks", "diff": "MEDIUM", "text": "We will see you in twenty five years. Probably sooner.", "script": "ur-NOOSE  \u00b7  ee-l'buh-BAHRP  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 16, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 17, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 18, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 19, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there. And after. And always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  d'nuh  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 20, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}], "tag": "OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  ee-SOOLE"};
-const TAG_SCRIPT = DATA.tag;
-const TAG_TEXT = "Lucy, we love you.";
+const APP_VERSION='6.0.0';
+const DATA = {"lines": [{"n": 1, "bank": "sweet", "diff": "EASY", "text": "We love you, Lucy.", "script": "ee-SOOLE  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW"}, {"n": 2, "bank": "sweet", "diff": "EASY", "text": "See you soon, Lucy.", "script": "ee-SOOLE  \u00b7  NOOSE  \u00b7  OOEE  \u00b7  EES"}, {"n": 3, "bank": "sweet", "diff": "EASY", "text": "Hello, Lucy. This is not goodbye.", "script": "EYE-b'duug  \u00b7  TAHN  \u00b7  ZIH  \u00b7  SIHTH  \u00b7  ee-SOOLE  \u00b7  OH-luhh"}, {"n": 4, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 5, "bank": "sweet", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 6, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there, after and always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 7, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}, {"n": 8, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 9, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 10, "bank": "peaks", "diff": "EASY", "text": "Lucy, you will never be gone.", "script": "NAWG  \u00b7  EEB  \u00b7  ur-VENN  \u00b7  LEW  \u00b7  OOEE  \u00b7  ee-SOOLE"}, {"n": 11, "bank": "peaks", "diff": "EASY", "text": "Lola knows the way to Madison.", "script": "nuh-suh-DAMN  \u00b7  UTTE  \u00b7  YEHW  \u00b7  uhth  \u00b7  ZONE  \u00b7  uhh-LOAL"}, {"n": 12, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 13, "bank": "peaks", "diff": "EASY", "text": "We are waving. Can you see us?", "script": "SUH  \u00b7  EES  \u00b7  OOEE  \u00b7  KNACK  \u00b7  ngih-VYEHW  \u00b7  RAW  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways.", "script": "ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 15, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 16, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 17, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 18, "bank": "peaks", "diff": "EASY", "text": "Meanwhile. We will always love you.", "script": "OOEE  \u00b7  VUHL  \u00b7  zay-w'LAW  \u00b7  LEW  \u00b7  EW  \u00b7  lie-w'NEAM", "gesture": true}, {"n": 19, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 20, "bank": "peaks", "diff": "EASY", "text": "We will see you in twenty five years. Or sooner.", "script": "ur-NOOSE  \u00b7  RAW  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 21, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 22, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}]};
 const $=id=>document.getElementById(id);
 
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
@@ -429,7 +447,14 @@ function recordStream(stream,mime,maxSec,onTick){
 /* ---------- navigation ---------- */
 const screens=document.querySelectorAll('.screen');
 let currentScreen='scr-home';
+const CAM_SCREENS=['scr-forward','scr-room'];
+function camPower(on){
+  if(!camStream)return;
+  camStream.getVideoTracks().forEach(t=>t.enabled=on);   // sleep the sensor, keep the permission
+}
 function show(id){ screens.forEach(s=>s.classList.toggle('on',s.id===id)); currentScreen=id;
+  stopPlay(); if(typeof stopScrub==='function') stopScrub();          // nothing audible survives a screen change
+  camPower(CAM_SCREENS.includes(id));
   if(id!=='scr-room'&&id!=='scr-forward'){ stopRoomLoop(); }
   if(id==='scr-home'){ renderHome(); } }
 document.querySelectorAll('.nav-home').forEach(b=>b.onclick=()=>{ stopPlay(); abortAnyRec(); show('scr-home'); });
@@ -439,7 +464,6 @@ function abortAnyRec(){ if(activeJob){try{activeJob.stop();}catch(e){}activeJob=
 
 /* ---------- session state ---------- */
 let sel=null;          // selected line object or null for freestyle
-let tagOn=false;
 let refPcm=null, refRevPcm=null, refFwdUrl=null, refRevUrl=null, refVidUrl=null;
 let lastResult=null;   // vault row of last processed result
 
@@ -448,8 +472,7 @@ function diffDots(d){ return d==='EASY'?'●○○':'●●○'; }
 function renderHome(){
   const mk=(bank,el)=>{
     el.innerHTML='';
-    const list=DATA.lines.filter(l=>l.bank===bank)
-      .sort((a,b)=> (a.diff===b.diff? a.n-b.n : (a.diff==='EASY'?-1:1)));
+    const list=DATA.lines.filter(l=>l.bank===bank);   // DATA is pre-sorted easy→hard
     list.forEach(l=>{
       const kept=rows.some(r=>r.lineN===l.n&&r.kind==='result'&&r.kept);
       const b=document.createElement('button');
@@ -464,7 +487,7 @@ function renderHome(){
   const allN=rows.filter(r=>r.kind==='result').length;
   $('reelCount').textContent = allN? (keptN+' kept · '+allN+' filmed tonight') : 'Nothing filmed yet.';
 }
-$('freestyleBtn').onclick=async()=>{ sel=null; tagOn=false; if(!(await ensureStage()))return; enterRoom(); };
+$('freestyleBtn').onclick=async()=>{ sel=null; if(!(await ensureStage()))return; enterRoom(); };
 $('reelBtn').onclick=()=>{ renderReel(); show('scr-reel'); };
 
 /* ---------- permission flow ---------- */
@@ -487,7 +510,7 @@ $('permBtn').onclick=async()=>{
 
 /* ---------- line flow: FORWARD ---------- */
 async function startLine(l){
-  sel=l; tagOn=false; refPcm=refRevPcm=null;
+  sel=l; refPcm=refRevPcm=null;
   if(refFwdUrl){URL.revokeObjectURL(refFwdUrl);refFwdUrl=null;}
   if(refRevUrl){URL.revokeObjectURL(refRevUrl);refRevUrl=null;}
   if(!(await ensureStage()))return;
@@ -562,17 +585,17 @@ $('playRevBtn').onclick=()=>{
 };
 $('toPracticeBtn').onclick=()=>{ setupPractice(); show('scr-practice'); };
 $('skipPracticeBtn').onclick=()=>{ enterRoom(); };
+$('reRecordBtn').onclick=()=>{ if(sel) startLine(sel); };
 
 /* ---------- PRACTICE ---------- */
-function currentScript(){ return sel? sel.script+(tagOn?'  ·  '+TAG_SCRIPT:'') : ''; }
-function currentFwdText(){ return sel? sel.text+(tagOn?' '+TAG_TEXT:'') : ''; }
+function currentScript(){ return sel? sel.script : ''; }
+function currentFwdText(){ return sel? sel.text : ''; }
 function setupPractice(){
   $('pracScript').textContent=currentScript();
+  syncGesture();
   $('scoreBox').style.display='none';
   $('pracLcd').textContent='';
-  $('tagToggle').classList.toggle('off',!tagOn);
 }
-$('tagToggle').onclick=()=>{ tagOn=!tagOn; setupPractice(); };
 $('halfBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:.75,loop:true}); $('pracLcd').textContent='Looping at ¾ speed. Copy it out loud.'; };
 $('fullBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:1,loop:true}); $('pracLcd').textContent='Looping full speed.'; };
 
@@ -616,16 +639,40 @@ $('closeBtn').onclick=async()=>{
   $('pracLcd').textContent='';
 };
 $('toRoomBtn').onclick=()=>enterRoom();
+$('backToListenBtn').onclick=()=>show('scr-listen');
 
 /* ---------- THE RED ROOM ---------- */
 let backdropImg=null, useBackdrop=true, seg=null, segReady=false, segFailed=false;
 let roomRunning=false, roomRecording=null, roomRecCanvasStream=null;
 
+let gestureUrl=null;
+async function loadGestureFromVault(){
+  const b=await dbGetMeta('gestureBlob');
+  if(b){ if(gestureUrl)URL.revokeObjectURL(gestureUrl); gestureUrl=URL.createObjectURL(b);
+    $('gestureStatus').textContent='Gesture image loaded ✓'; }
+}
 async function loadBackdropFromVault(){
   const b=await dbGetMeta('backdropBlob');
   if(b){ backdropImg=new Image(); backdropImg.src=URL.createObjectURL(b);
     await new Promise(r=>backdropImg.onload=r);
     $('backdropStatus').textContent='Backdrop loaded ✓'; }
+}
+$('loadGestureBtn').onclick=()=>$('gestureFile').click();
+$('gestureFile').onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  await setMeta('gestureBlob',f);
+  await loadGestureFromVault();
+};
+function syncGesture(){
+  const on=!!(sel&&sel.gesture);
+  $('pracGesture').style.display=on?'block':'none';
+  $('roomGesture').style.display=on?'block':'none';
+  if(on){
+    $('pracGestureImg').style.display=gestureUrl?'inline':'none';
+    $('pracGesturePh').style.display=gestureUrl?'none':'flex';
+    if(gestureUrl){ $('pracGestureImg').src=gestureUrl; $('roomGestureImg').src=gestureUrl; $('roomGestureImg').style.display='inline'; }
+    else $('roomGestureImg').style.display='none';
+  }
 }
 $('loadBackdropBtn').onclick=()=>$('backdropFile').click();
 $('backdropFile').onchange=async e=>{
@@ -747,8 +794,10 @@ function syncBgToggle(){
 $('bgToggle').onclick=()=>{ if(segFailed)return; useBackdrop=!useBackdrop; syncBgToggle(); };
 
 async function enterRoom(){
+  stopPlay(); if(typeof stopScrub==='function') stopScrub();
   if(!(await ensureStage()))return;
   $('roomScript').textContent= sel? currentScript() : '';
+  syncGesture();
   $('roomHint').textContent= sel? 'Tap the red button when ready':'No script. Say anything. The room will turn it around.';
   syncBgToggle();
   show('scr-room');
@@ -850,7 +899,7 @@ async function processTake(blob,srcMime){
     const result=new Blob(parts,{type:mime});
     lastResult=await vaultAdd({lineN:sel?sel.n:0,kind:'result',blob:result,kept:false,
       scriptUsed:sel?currentScript():'freestyle',fwdText:sel?currentFwdText():'Freestyle'});
-    // review
+    if(currentScreen!=='scr-processing'){ renderHome(); return; }   // user left — film is safe in the vault/Reel
     $('reviewVid').src=URL.createObjectURL(result);
     $('reviewMeta').textContent=(sel?('Line '+String(sel.n).padStart(2,'0')):'Freestyle')+' · Take '+lastResult.take+' · saved ✓';
     show('scr-review');
@@ -919,11 +968,12 @@ $('exportAllBtn').onclick=()=>{
 };
 
 /* ---------- boot ---------- */
-document.getElementById('verBadge').textContent='v'+'5.1.2';
+document.getElementById('verBadge').textContent='v'+'6.0.0';
 (async function boot(){
   try{
     rows=await dbAll('media');
     await loadBackdropFromVault();
+    await loadGestureFromVault();
   }catch(e){}
   renderHome();
 })();
