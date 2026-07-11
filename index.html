@@ -125,6 +125,8 @@ input[type=file]{display:none;}
 </head>
 <body>
 <div class="godray"></div><div class="haze"></div>
+<div id="verBadge" style="position:fixed;bottom:max(8px,env(safe-area-inset-bottom));right:12px;z-index:40;
+  font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.15em;color:rgba(239,230,208,.45);pointer-events:none">v—</div>
 
 <!-- ================= HOME ================= -->
 <div class="screen on" id="scr-home">
@@ -169,7 +171,8 @@ input[type=file]{display:none;}
     <button class="plate" id="resetBoardBtn">Reset The Board (keeps all films)</button>
     <div class="lcd">Un-grays every message so the night can start fresh. Nothing is deleted.</div>
     <div class="gap"></div>
-    <button class="plate ghost" id="wipeBtn">Erase Everything (careful)</button>
+    <button class="plate ghost" id="wipeBtn">Clear All History</button>
+    <div class="lcd">Empties the board and The Reel. Videos you exported to Photos or Files are NOT touched — they live outside the Lodge.</div>
     <div class="spacer"></div>
     <div class="lcd">Everything recorded saves itself to this iPad instantly.<br>Export from The Reel at the end of the night.</div>
   </div>
@@ -329,6 +332,7 @@ input[type=file]{display:none;}
 /* ============================================================
    LUCY'S LODGE v5 — party build
 ============================================================ */
+const APP_VERSION='5.1.1';
 const DATA = {"lines": [{"n": 1, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 2, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 3, "bank": "peaks", "diff": "MEDIUM", "text": "Lola has already visited Wisconsin. In her sleep.", "script": "PEELS  \u00b7  URR  \u00b7  nih  \u00b7  nuh-s'NA-k'sew  \u00b7  dih-tih-ZIHV  \u00b7  ee-DEH-r'law  \u00b7  ZAH  \u00b7  uhh-LOAL"}, {"n": 4, "bank": "peaks", "diff": "MEDIUM", "text": "Your dissertation is already written. It is waiting inside.", "script": "DIE-s'nih  \u00b7  ngih-TYEHW  \u00b7  ZIH  \u00b7  TIH  \u00b7  nuh-TIHR  \u00b7  ee-DEH-r'law  \u00b7  ZIH  \u00b7  nuh-SHEA-ter-sid  \u00b7  ROY"}, {"n": 5, "bank": "peaks", "diff": "EASY", "text": "Your friends are not gone. They are only reversed.", "script": "t'SIR-veer  \u00b7  ee-l'NO  \u00b7  RAW  \u00b7  AITH  \u00b7  NAWG  \u00b7  TAHN  \u00b7  RAW  \u00b7  z'd'NEHRF  \u00b7  ROY"}, {"n": 6, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 7, "bank": "peaks", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 8, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 9, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways. Slowly.", "script": "ee-LWOHLS  \u00b7  ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 10, "bank": "peaks", "diff": "MEDIUM", "text": "You are not leaving. You are being continued.", "script": "do-y'NIH-t'nuhk  \u00b7  ngih-EEB  \u00b7  RAW  \u00b7  OOEE  \u00b7  ngih-VEAL  \u00b7  TAHN  \u00b7  RAW  \u00b7  OOEE"}, {"n": 11, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}, {"n": 12, "bank": "peaks", "diff": "MEDIUM", "text": "Baltimore taught you the dark. Madison will teach the cold.", "script": "d'LOAK  \u00b7  uhth  \u00b7  t'SHEET  \u00b7  LEW  \u00b7  nuh-suh-DAMN  \u00b7  k'ROD  \u00b7  uhth  \u00b7  OOEE  \u00b7  TAUGHT  \u00b7  raw-muh-t'LAWB"}, {"n": 13, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 15, "bank": "peaks", "diff": "MEDIUM", "text": "We will see you in twenty five years. Probably sooner.", "script": "ur-NOOSE  \u00b7  ee-l'buh-BAHRP  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 16, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 17, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 18, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 19, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there. And after. And always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  d'nuh  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 20, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}], "tag": "OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  ee-SOOLE"};
 const TAG_SCRIPT = DATA.tag;
 const TAG_TEXT = "Lucy, we love you.";
@@ -540,8 +544,22 @@ $('fwdRecBtn').onclick=async()=>{
 };
 
 /* ---------- LISTEN ---------- */
-$('playFwdBtn').onclick=()=>{ stopPlay(); const v=$('listenVid'); v.currentTime=0; v.play(); };
-$('playRevBtn').onclick=()=>{ const v=$('listenVid'); v.pause(); if(refRevUrl)playUrl(refRevUrl); };
+let revScrub=null;
+function stopScrub(){ if(revScrub){clearInterval(revScrub);revScrub=null;} }
+$('playFwdBtn').onclick=()=>{ stopPlay(); stopScrub(); const v=$('listenVid'); v.muted=false; v.currentTime=0; v.play(); };
+$('playRevBtn').onclick=()=>{
+  stopScrub();
+  const v=$('listenVid'); v.pause(); v.muted=true;
+  const dur=isFinite(v.duration)?v.duration:0;
+  v.currentTime=Math.max(0,dur-0.05);
+  if(refRevUrl)playUrl(refRevUrl);
+  const step=1/10;
+  revScrub=setInterval(()=>{
+    const t=v.currentTime-step;
+    if(t<=0){ v.currentTime=0; stopScrub(); return; }
+    v.currentTime=t;
+  },100);
+};
 $('toPracticeBtn').onclick=()=>{ setupPractice(); show('scr-practice'); };
 $('skipPracticeBtn').onclick=()=>{ enterRoom(); };
 
@@ -623,7 +641,7 @@ $('resetBoardBtn').onclick=async()=>{
   $('backdropStatus').textContent='Board reset — every message is available again.';
 };
 $('wipeBtn').onclick=async()=>{
-  if(!confirm('Erase every recording and setting on this iPad?'))return;
+  if(!confirm('Clear the board and The Reel? Anything you exported to Photos or Files stays safe there. Films you never exported will be gone from the Lodge. Continue?'))return;
   const db=await dbP; db.transaction(['media','meta'],'readwrite');
   for(const r of [...rows]) await dbDel('media',r.id);
   rows=[]; renderHome(); $('backdropStatus').textContent='Erased.';
@@ -678,7 +696,7 @@ function onSegResults(res){
   maskX.clearRect(0,0,RW,RH);
   maskX.translate(RW,0);maskX.scale(-1,1);
   const iw=res.image.width,ih=res.image.height;
-  const s=Math.max(RW/iw,RH/ih),dw=iw*s,dh=ih*s,ox=(RW-dw)/2,oy=(RH-dh)/2;
+  const s=Math.min(RW/iw,RH/ih),dw=iw*s,dh=ih*s,ox=(RW-dw)/2,oy=RH-dh;   // fit whole camera, stand on the floor
   maskX.filter='blur(3px)';
   maskX.drawImage(res.segmentationMask,ox,oy,dw,dh);
   maskX.filter='none';
@@ -900,6 +918,7 @@ $('exportAllBtn').onclick=()=>{
 };
 
 /* ---------- boot ---------- */
+document.getElementById('verBadge').textContent='v'+'5.1.1';
 (async function boot(){
   try{
     rows=await dbAll('media');
