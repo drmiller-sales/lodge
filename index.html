@@ -177,7 +177,7 @@ input[type=file]{display:none;}
   <div class="content" style="justify-content:center">
     <div class="tracked">Once Per Night</div>
     <div class="display mid">Open The<br>Stage</div>
-    <div class="lcd" style="max-width:380px;margin-top:16px">The room needs your eyes and your voice.<br>We only ask once — then the curtains stay open all night.</div>
+    <div class="lcd" style="max-width:380px;margin-top:16px">The room needs your eyes and your voice.<br>We ask once per visit. Keep the app open all party — if it's fully closed, iOS makes us ask again.</div>
     <div class="gap"></div>
     <button class="plate primary" id="permBtn">Enter The Lodge</button>
     <div class="lcd" id="permLcd"></div>
@@ -190,7 +190,7 @@ input[type=file]{display:none;}
   <div class="content" style="width:100%;max-width:760px">
     <div class="gap"></div><div class="gap"></div>
     <div class="tracked dim" id="fwdLineNo">Line 01</div>
-    <div class="stagebox" style="max-height:46vh">
+    <div class="stagebox" style="height:62vh;max-height:none;flex:0 0 auto">
       <canvas class="stage" id="fwdCanvas" width="720" height="960"></canvas>
       <div class="overlay">
         <div class="teletext" id="fwdLineText"></div>
@@ -202,7 +202,7 @@ input[type=file]{display:none;}
     </div>
     <div class="gap"></div>
     <button class="recbtn" id="fwdRecBtn">Say It<br>Forward</button>
-    <div class="lcd" id="fwdLcd">Say the line normally, like you mean it. Tap to start — tap again to stop.</div>
+    <div class="lcd" id="fwdLcd">Speak SLOWLY and clearly — slow speech turns around cleaner. Tap to start, tap again to stop.</div>
   </div>
 </div>
 
@@ -212,7 +212,8 @@ input[type=file]{display:none;}
   <div class="content" style="justify-content:center">
     <div class="tracked">You Said It Forward</div>
     <div class="display mid">Listen</div>
-    <div class="lcd">Now hear what the room heard.</div>
+    <video id="listenVid" playsinline style="width:100%;max-height:38vh;border-radius:12px;background:#000;margin-top:10px"></video>
+    <div class="lcd">Watch it forward. Then hear it backwards — that sound is your teacher.</div>
     <div class="gap"></div>
     <button class="plate" id="playFwdBtn">▶ &nbsp;Play Forward</button>
     <div class="gap"></div>
@@ -238,7 +239,7 @@ input[type=file]{display:none;}
     <button class="togglechip off" id="tagToggle">+ "Lucy, We Love You"</button>
     <div class="gap"></div>
     <div class="row">
-      <button class="plate" style="max-width:200px" id="halfBtn">▶ ½ Speed</button>
+      <button class="plate" style="max-width:200px" id="halfBtn">▶ ¾ Speed</button>
       <button class="plate" style="max-width:200px" id="fullBtn">▶ Full Speed</button>
     </div>
     <div class="gap"></div>
@@ -432,7 +433,7 @@ function abortAnyRec(){ if(activeJob){try{activeJob.stop();}catch(e){}activeJob=
 /* ---------- session state ---------- */
 let sel=null;          // selected line object or null for freestyle
 let tagOn=false;
-let refPcm=null, refRevPcm=null, refFwdUrl=null, refRevUrl=null;
+let refPcm=null, refRevPcm=null, refFwdUrl=null, refRevUrl=null, refVidUrl=null;
 let lastResult=null;   // vault row of last processed result
 
 /* ---------- HOME ---------- */
@@ -461,8 +462,13 @@ $('reelBtn').onclick=()=>{ renderReel(); show('scr-reel'); };
 
 /* ---------- permission flow ---------- */
 let pendingAfterPerm=null;
+function stageAlive(){
+  return camStream && micTrack && micTrack.readyState==='live'
+    && camStream.getVideoTracks()[0] && camStream.getVideoTracks()[0].readyState==='live';
+}
 async function ensureStage(){
-  if(camStream) return true;
+  if(stageAlive()) return true;
+  camStream=null; micTrack=null;
   show('scr-perm'); 
   return new Promise(res=>{ pendingAfterPerm=res; });
 }
@@ -480,7 +486,7 @@ async function startLine(l){
   if(!(await ensureStage()))return;
   $('fwdLineNo').textContent='Line '+String(l.n).padStart(2,'0')+' · '+(l.bank==='peaks'?'Twin Peaks':'Sweet');
   $('fwdLineText').textContent=l.text;
-  $('fwdLcd').textContent='Say the line normally, like you mean it. Tap to start — tap again to stop.';
+  $('fwdLcd').textContent='Speak SLOWLY and clearly — slow speech turns around cleaner. Tap to start, tap again to stop.';
   show('scr-forward');
   startFwdPreview();
 }
@@ -510,12 +516,12 @@ $('fwdRecBtn').onclick=async()=>{
   if(activeJob){ activeJob.stop(); return; }
   stopPlay();
   await countdown($('fwdCount'));
-  const mime=recMime('a');
-  activeJob=recordStream(new MediaStream([micTrack]),mime,30,
+  const mime=recMime('v');
+  activeJob=recordStream(new MediaStream([...camStream.getVideoTracks(), micTrack]),mime,30,
     t=>$('fwdTimer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
   $('fwdRec').style.display='flex';
   $('fwdRecBtn').textContent='■ Stop';
-  $('fwdLcd').textContent='Recording — say the line, then tap stop.';
+  $('fwdLcd').textContent='Recording — slow and clear, then tap stop.';
   const blob=await activeJob.done; activeJob=null;
   $('fwdRec').style.display='none'; $('fwdRecBtn').innerHTML='Say It<br>Forward';
   if(currentScreen!=='scr-forward') return;   // user bailed via Home
@@ -524,12 +530,15 @@ $('fwdRecBtn').onclick=async()=>{
   refRevPcm=reversePcm(refPcm);
   refFwdUrl=URL.createObjectURL(pcmToWav(refPcm));
   refRevUrl=URL.createObjectURL(pcmToWav(refRevPcm));
+  if(refVidUrl){URL.revokeObjectURL(refVidUrl);}
+  refVidUrl=URL.createObjectURL(blob);
+  $('listenVid').src=refVidUrl;
   show('scr-listen');
 };
 
 /* ---------- LISTEN ---------- */
-$('playFwdBtn').onclick=()=>{ if(refFwdUrl)playUrl(refFwdUrl); };
-$('playRevBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl); };
+$('playFwdBtn').onclick=()=>{ stopPlay(); const v=$('listenVid'); v.currentTime=0; v.play(); };
+$('playRevBtn').onclick=()=>{ const v=$('listenVid'); v.pause(); if(refRevUrl)playUrl(refRevUrl); };
 $('toPracticeBtn').onclick=()=>{ setupPractice(); show('scr-practice'); };
 $('skipPracticeBtn').onclick=()=>{ enterRoom(); };
 
@@ -543,7 +552,7 @@ function setupPractice(){
   $('tagToggle').classList.toggle('off',!tagOn);
 }
 $('tagToggle').onclick=()=>{ tagOn=!tagOn; setupPractice(); };
-$('halfBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:.55,loop:true}); $('pracLcd').textContent='Looping slow. Copy it out loud. Tap Full Speed or a play button again to switch.'; };
+$('halfBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:.75,loop:true}); $('pracLcd').textContent='Looping at ¾ speed. Copy it out loud.'; };
 $('fullBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:1,loop:true}); $('pracLcd').textContent='Looping full speed.'; };
 
 function envelope(pcm,bins){
