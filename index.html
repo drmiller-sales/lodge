@@ -3,766 +3,881 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>LODGE–1 v3 · Reverse Dialogue Unit</title>
+<title>Lucy's Lodge</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#2a2a2c">
+<meta name="theme-color" content="#0a0808">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Zilla+Slab:ital,wght@0,500;1,500&family=Archivo:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
 <style>
-  :root{
-    --putty:#d7d4cd; --putty-hi:#e4e2dc; --putty-lo:#bdbab2;
-    --ink:#17181a; --rec:#ff4400; --curtain:#7a0e18; --cream:#efe6d0;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{
-    background:#2a2a2c; font-family:var(--mono); color:var(--ink);
-    display:flex; justify-content:center; min-height:100%;
-    padding:max(10px, env(safe-area-inset-top)) 0 40px;
-  }
-  .unit{
-    width:min(430px,100vw); background:var(--putty);
-    border-radius:14px; padding:12px 12px 18px;
-    box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 1px 0 var(--putty-hi);
-  }
-  .brand{ display:flex; justify-content:space-between; align-items:baseline; padding:2px 4px 6px; }
-  .brand b{ font-size:12px; letter-spacing:.24em; font-weight:700; }
-  .brand span{ font-size:9px; letter-spacing:.18em; color:#6f6d68; }
-  .ledger{ font-size:9px; letter-spacing:.2em; color:#6f6d68; padding:0 4px 8px; }
-  .ledger b{ color:#3c3a36; font-weight:700; }
+:root{
+  --void:#0a0808; --crimson:#7a0e18; --fold:#3d060c; --cream:#efe6d0;
+  --neon:#7fff9e; --rec:#ff4400;
+  --label:'Archivo',system-ui,sans-serif;
+  --display:'Oswald','Arial Narrow',sans-serif;
+  --tele:'Zilla Slab',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
+html,body{height:100%;background:var(--void);color:var(--cream);overflow:hidden;}
+body{font-family:var(--label);}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;
+  padding:max(18px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));overflow-y:auto;}
+.screen.on{display:flex;}
+.godray{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 45% at 50% -8%, rgba(122,14,24,.5), transparent 65%);}
+.haze{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background:radial-gradient(ellipse 90% 60% at 50% 0%, rgba(239,230,208,.05), transparent 70%);}
+.content{position:relative;z-index:1;width:min(680px,100%);display:flex;flex-direction:column;align-items:center;flex:1;}
 
-  .stagewrap{ position:relative; border-radius:6px; overflow:hidden; background:#000; box-shadow:inset 0 0 0 2px #a9a69e; }
-  canvas.stage{ width:100%; display:block; }
-  .lamp{ position:absolute; top:8px; left:8px; width:10px; height:10px; border-radius:50%; background:#3a3a3a; }
-  .lamp.on{ background:var(--rec); box-shadow:0 0 10px var(--rec); animation:bl 1s infinite; }
-  @keyframes bl{50%{opacity:.25}}
-  .timer{ position:absolute; top:5px; right:9px; color:var(--cream); font-size:12px; text-shadow:0 0 4px #000; }
+.tracked{font-family:var(--label);text-transform:uppercase;letter-spacing:.42em;text-indent:.42em;
+  font-size:14px;font-weight:600;color:var(--cream);opacity:.85;text-align:center;}
+.tracked.dim{opacity:.5;font-size:11px;}
+.display{font-family:var(--display);font-weight:600;text-transform:uppercase;line-height:.94;
+  color:var(--crimson);text-align:center;
+  -webkit-text-stroke:2px var(--neon);
+  text-shadow:0 0 18px rgba(127,255,158,.45),0 0 46px rgba(127,255,158,.22);}
+.display.big{font-size:clamp(64px,17vw,120px);}
+.display.mid{font-size:clamp(38px,9vw,64px);}
 
-  .transport{ display:grid; grid-template-columns:56px 1fr 56px; gap:10px; align-items:center; margin:12px 0 4px; }
-  .knobbtn{
-    width:56px; height:56px; border-radius:50%; border:none; cursor:pointer;
-    background:radial-gradient(circle at 35% 30%, var(--putty-hi), var(--putty-lo));
-    box-shadow:0 2px 4px rgba(0,0,0,.35), inset 0 1px 0 #fff;
-    font-family:var(--mono); font-size:18px; color:var(--ink);
-  }
-  .knobbtn:active{ box-shadow:inset 0 2px 5px rgba(0,0,0,.4); }
-  .counter{ text-align:center; background:var(--ink); color:var(--cream); border-radius:5px; padding:8px 6px; }
-  .counter .num{ font-size:15px; letter-spacing:.2em; }
-  .counter .num em{ font-style:normal; color:#8fbf6f; font-size:10px; margin-left:6px; }
-  .counter .line{ font-size:11px; color:#b7ad93; margin-top:4px; min-height:28px; line-height:1.3; letter-spacing:.03em; }
+.homebtn{position:fixed;top:max(14px,env(safe-area-inset-top));left:16px;z-index:50;
+  font-family:var(--label);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--cream);opacity:.55;background:none;border:1px solid rgba(239,230,208,.25);
+  border-radius:999px;padding:9px 16px 9px 18px;}
+.gear{position:fixed;top:max(14px,env(safe-area-inset-top));right:16px;z-index:50;
+  font-size:17px;color:var(--cream);opacity:.5;background:none;border:none;padding:8px;}
 
-  .modes{ display:flex; gap:6px; margin:12px 0; }
-  .modes button{
-    flex:1; font-family:var(--mono); font-size:10px; letter-spacing:.2em;
-    padding:10px 0; border:none; border-radius:4px; cursor:pointer;
-    background:var(--putty-lo); color:#4a4844;
-  }
-  .modes button.active{ background:var(--ink); color:var(--cream); }
+.plate{font-family:var(--label);font-weight:600;text-transform:uppercase;letter-spacing:.22em;text-indent:.22em;
+  font-size:14px;color:var(--cream);background:rgba(10,8,8,.8);
+  border:1px solid rgba(239,230,208,.35);border-radius:999px;
+  padding:18px 30px;width:100%;max-width:420px;text-align:center;}
+.plate.primary{border-color:var(--neon);color:var(--neon);
+  box-shadow:0 0 16px rgba(127,255,158,.28), inset 0 0 12px rgba(127,255,158,.08);}
+.plate.ghost{opacity:.6;border-style:dashed;font-size:11px;padding:12px 22px;width:auto;}
+.plate:disabled{opacity:.3;}
+.plate:active{transform:scale(.985);}
 
-  .panel{ display:none; padding:4px 2px; }
-  .panel.active{ display:block; }
-  .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+.recbtn{width:120px;height:120px;border-radius:50%;border:3px solid rgba(239,230,208,.7);
+  background:radial-gradient(circle at 34% 30%, #ff6a33, var(--rec) 65%, #a12500);
+  box-shadow:0 0 34px rgba(255,68,0,.55), inset 0 2px 8px rgba(255,255,255,.25);
+  font-family:var(--label);font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#fff;}
+.recbtn:active{transform:scale(.95);}
 
-  .op{
-    font-family:var(--mono); font-size:10px; letter-spacing:.18em; cursor:pointer;
-    padding:12px 14px; border:none; border-radius:4px;
-    background:var(--ink); color:var(--cream); flex:1; min-width:90px;
-  }
-  .op.rec{ background:var(--rec); color:#fff; }
-  .op.live{ background:#111; color:var(--rec); outline:2px solid var(--rec); }
-  .op.quiet{ background:var(--putty-lo); color:#3c3a36; }
-  .op:disabled{ opacity:.35; cursor:default; }
+.chips{width:100%;display:flex;flex-direction:column;gap:10px;}
+.chip{display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:rgba(61,6,12,.35);border:1px solid rgba(122,14,24,.6);border-radius:12px;
+  padding:15px 16px;color:var(--cream);font-family:var(--tele);font-size:17px;line-height:1.3;}
+.chip .dots{font-size:10px;letter-spacing:2px;color:var(--neon);opacity:.9;flex:0 0 auto;}
+.chip.kept{opacity:.38;}
+.chip .keptbadge{margin-left:auto;flex:0 0 auto;font-family:var(--label);font-size:9px;
+  letter-spacing:.25em;color:var(--neon);border:1px solid rgba(127,255,158,.5);border-radius:999px;padding:4px 9px;}
+.bankhead{margin:26px 0 12px;display:flex;width:100%;justify-content:space-between;align-items:baseline;}
+.bankhead .tracked{text-align:left;text-indent:0;letter-spacing:.3em;font-size:12px;}
+.bankhead .sub{font-size:9px;letter-spacing:.25em;opacity:.45;text-transform:uppercase;}
 
-  .lcd{
-    background:#20221f; color:#c9e6b0; border-radius:4px;
-    font-size:10px; letter-spacing:.14em; padding:9px 10px; margin-top:4px;
-    min-height:32px; line-height:1.5;
-  }
-  input[type=range]{ flex:1; accent-color:var(--rec); }
-  .lbl{ font-size:9px; letter-spacing:.18em; color:#6f6d68; }
-  .toggle{ display:flex; align-items:center; gap:8px; font-size:9px; letter-spacing:.16em; color:#4a4844; }
+.stagebox{position:relative;width:100%;flex:1;min-height:0;border-radius:14px;overflow:hidden;
+  background:#000;border:1px solid rgba(122,14,24,.7);display:flex;}
+canvas.stage{width:100%;height:100%;object-fit:cover;}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;padding:18px;pointer-events:none;}
+.teletext{font-family:var(--tele);font-weight:500;color:var(--cream);text-align:center;
+  font-size:clamp(26px,5.4vw,44px);line-height:1.45;text-shadow:0 2px 14px rgba(0,0,0,.9);
+  margin-top:8px;}
+.recdot{position:absolute;top:14px;left:14px;display:flex;gap:8px;align-items:center;
+  font-family:var(--label);font-size:12px;letter-spacing:.2em;color:#fff;text-shadow:0 0 8px #000;}
+.recdot i{width:12px;height:12px;border-radius:50%;background:var(--rec);box-shadow:0 0 10px var(--rec);animation:bl 1s infinite;}
+@keyframes bl{50%{opacity:.25}}
+.countnum{font-family:var(--display);font-size:180px;color:var(--cream);
+  text-shadow:0 0 40px rgba(0,0,0,.9);}
+.lcd{font-family:var(--label);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(239,230,208,.75);text-align:center;line-height:1.7;margin-top:12px;min-height:20px;}
+.spacer{flex:1;}
+.gap{height:14px;flex:0 0 auto;}
+.row{display:flex;gap:12px;width:100%;justify-content:center;flex-wrap:wrap;}
 
-  details{ margin-top:14px; }
-  summary{ font-size:9px; letter-spacing:.2em; color:#6f6d68; cursor:pointer; padding:4px 2px; }
-  textarea{
-    width:100%; min-height:130px; margin-top:8px; border-radius:4px;
-    border:1px solid var(--putty-lo); background:#fffef9; color:var(--ink);
-    font-family:var(--mono); font-size:12px; padding:8px; line-height:1.5;
-  }
-  video#resultVid{ width:100%; border-radius:6px; margin-top:8px; background:#000; display:none; }
-  progress{ width:100%; height:5px; accent-color:var(--rec); margin-top:6px; display:none; }
+progress{width:100%;max-width:420px;height:5px;accent-color:var(--rec);}
+.togglechip{font-family:var(--label);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid rgba(127,255,158,.5);color:var(--neon);background:none;border-radius:999px;padding:10px 18px;}
+.togglechip.off{border-color:rgba(239,230,208,.3);color:rgba(239,230,208,.5);}
 
-  .reel-item{ display:flex; gap:6px; align-items:center; padding:8px 4px; border-bottom:1px solid var(--putty-lo); }
-  .reel-item .rlbl{ flex:1; font-size:10px; letter-spacing:.06em; line-height:1.4; }
-  .reel-item button{ font-family:var(--mono); font-size:9px; letter-spacing:.14em; border:none;
-    border-radius:4px; padding:8px 9px; cursor:pointer; background:var(--ink); color:var(--cream); }
-  .reel-item button.danger{ background:#5c0710; }
+.reelrow{display:flex;align-items:center;gap:10px;width:100%;padding:13px 4px;
+  border-bottom:1px solid rgba(122,14,24,.5);}
+.reelrow .txt{flex:1;min-width:0;font-family:var(--tele);font-size:14px;line-height:1.35;}
+.reelrow .meta{font-family:var(--label);font-size:9px;letter-spacing:.2em;opacity:.5;text-transform:uppercase;margin-top:3px;}
+.reelrow button{flex:0 0 auto;font-family:var(--label);font-size:10px;letter-spacing:.12em;
+  color:var(--cream);background:rgba(10,8,8,.7);border:1px solid rgba(239,230,208,.3);
+  border-radius:8px;padding:10px 12px;}
+.reelrow button.del{border-color:rgba(255,68,0,.5);color:#ff7744;}
+video#reviewVid,video#reelVid{width:100%;max-height:52vh;border-radius:12px;background:#000;}
+.scorebig{font-family:var(--display);font-size:92px;color:var(--crimson);
+  -webkit-text-stroke:2px var(--neon);text-shadow:0 0 20px rgba(127,255,158,.4);}
+.disclaimer{font-family:var(--tele);font-style:italic;font-size:13px;opacity:.55;text-align:center;margin-top:10px;}
+.filmstrip{display:flex;gap:6px;margin:20px 0;}
+.filmstrip i{width:26px;height:38px;background:rgba(122,14,24,.5);border:1px solid rgba(239,230,208,.2);
+  border-radius:3px;animation:strip 1.2s infinite;}
+.filmstrip i:nth-child(2){animation-delay:.15s}.filmstrip i:nth-child(3){animation-delay:.3s}
+.filmstrip i:nth-child(4){animation-delay:.45s}.filmstrip i:nth-child(5){animation-delay:.6s}
+@keyframes strip{50%{background:rgba(122,14,24,1);border-color:var(--neon)}}
+input[type=file]{display:none;}
 </style>
 </head>
 <body>
-<div class="unit">
-  <div class="brand"><b>LODGE–1 <span style="color:#ff4400">v3</span></b><span>OFFLINE · AUTO-BACKUP · FOR LUCY</span></div>
-  <div class="ledger" id="ledger">BOOTING…</div>
+<div class="godray"></div><div class="haze"></div>
 
-  <div class="stagewrap">
-    <canvas class="stage" id="stage" width="720" height="540"></canvas>
-    <div class="lamp" id="lamp"></div>
-    <div class="timer" id="timer"></div>
+<!-- ================= HOME ================= -->
+<div class="screen on" id="scr-home">
+  <button class="gear" id="gearBtn">⚙</button>
+  <div class="content">
+    <div class="gap"></div>
+    <div class="tracked">Welcome To</div>
+    <div class="display big">Lucy's<br>Lodge</div>
+    <div class="tracked dim" style="margin-top:10px">Choose A Message</div>
+
+    <div class="bankhead"><span class="tracked">Twin Peaks Style</span><span class="sub">Easiest → Hardest</span></div>
+    <div class="chips" id="bankPeaks"></div>
+    <div class="bankhead"><span class="tracked">Sweet Messages</span><span class="sub"></span></div>
+    <div class="chips" id="bankSweet"></div>
+
+    <div class="gap"></div>
+    <button class="chip" id="freestyleBtn" style="border-color:rgba(127,255,158,.5)">
+      <span class="dots">◆</span><span><b style="font-family:var(--label);font-size:12px;letter-spacing:.2em">FREESTYLE</b><br>
+      <span style="opacity:.7;font-size:14px">Think you can just do it? Step in.</span></span>
+    </button>
+    <button class="chip" id="reelBtn">
+      <span class="dots">▣</span><span><b style="font-family:var(--label);font-size:12px;letter-spacing:.2em">THE REEL</b><br>
+      <span style="opacity:.7;font-size:14px" id="reelCount">Nothing kept yet.</span></span>
+    </button>
+    <div class="lcd" id="homeLcd">ee-SOOL</div>
+    <div class="gap"></div>
   </div>
+</div>
 
-  <div class="transport">
-    <button class="knobbtn" id="prevBtn">◀</button>
-    <div class="counter">
-      <div class="num" id="counterNum">·· / ··</div>
-      <div class="line" id="counterLine"></div>
-    </div>
-    <button class="knobbtn" id="nextBtn">▶</button>
+<!-- ================= SETTINGS ================= -->
+<div class="screen" id="scr-settings">
+  <button class="homebtn nav-home">⌂ Home</button>
+  <div class="content">
+    <div class="gap"></div><div class="gap"></div>
+    <div class="tracked">The Back Room</div>
+    <div class="display mid">Settings</div>
+    <div class="gap"></div>
+    <button class="plate" id="loadBackdropBtn">Load Backdrop Image</button>
+    <label class="lcd" id="backdropStatus">No backdrop loaded — the painted curtains will be used.</label>
+    <input type="file" id="backdropFile" accept="image/*">
+    <div class="gap"></div>
+    <button class="plate ghost" id="wipeBtn">Erase Everything (careful)</button>
+    <div class="spacer"></div>
+    <div class="lcd">Everything recorded saves itself to this iPad instantly.<br>Export from The Reel at the end of the night.</div>
   </div>
+</div>
 
-  <div class="modes">
-    <button id="m0" class="active">REF</button>
-    <button id="m1">LEARN</button>
-    <button id="m2">TAKE</button>
+<!-- ================= PERMISSION ================= -->
+<div class="screen" id="scr-perm">
+  <div class="content" style="justify-content:center">
+    <div class="tracked">Once Per Night</div>
+    <div class="display mid">Open The<br>Stage</div>
+    <div class="lcd" style="max-width:380px;margin-top:16px">The room needs your eyes and your voice.<br>We only ask once — then the curtains stay open all night.</div>
+    <div class="gap"></div>
+    <button class="plate primary" id="permBtn">Enter The Lodge</button>
+    <div class="lcd" id="permLcd"></div>
   </div>
+</div>
 
-  <!-- REF -->
-  <div class="panel active" id="p0">
-    <div class="row">
-      <button class="op rec" id="refRec">● REC FORWARD</button>
-      <button class="op quiet" id="refPlay" disabled>▶ FWD</button>
-      <button class="op quiet" id="refPlayRev" disabled>▶ REV</button>
+<!-- ================= MESSAGE START (forward) ================= -->
+<div class="screen" id="scr-forward">
+  <button class="homebtn nav-home">⌂ Home</button>
+  <div class="content" style="width:100%;max-width:760px">
+    <div class="gap"></div><div class="gap"></div>
+    <div class="tracked dim" id="fwdLineNo">Line 01</div>
+    <div class="stagebox" style="max-height:46vh">
+      <canvas class="stage" id="fwdCanvas" width="720" height="960"></canvas>
+      <div class="overlay">
+        <div class="teletext" id="fwdLineText"></div>
+        <div class="spacer"></div>
+        <div class="countnum" id="fwdCount" style="display:none"></div>
+        <div class="spacer"></div>
+      </div>
+      <div class="recdot" id="fwdRec" style="display:none"><i></i><span id="fwdTimer"></span></div>
     </div>
-    <div class="lcd" id="lcd0">SPEAK THE LINE NORMALLY. TAP ● TO START, TAP AGAIN TO STOP. EVERY RECORDING IS SAVED TO THE UNIT THE MOMENT IT ENDS.</div>
+    <div class="gap"></div>
+    <button class="recbtn" id="fwdRecBtn">Say It<br>Forward</button>
+    <div class="lcd" id="fwdLcd">Say the line normally, like you mean it. Tap to start — tap again to stop.</div>
   </div>
+</div>
 
-  <!-- LEARN -->
-  <div class="panel" id="p1">
-    <div class="row">
-      <button class="op" id="loopBtn" disabled>⟳ LOOP REVERSED REF</button>
-      <button class="op quiet" id="loopStop" disabled>■</button>
-    </div>
-    <div class="row">
-      <span class="lbl">SPEED</span>
-      <input type="range" id="speed" min="0.5" max="1" step="0.05" value="0.7">
-      <span class="lbl" id="speedVal">0.70×</span>
-    </div>
-    <div class="row">
-      <button class="op rec" id="echoRec" disabled>● ECHO CHECK</button>
-    </div>
-    <div class="lcd" id="lcd1">MIMIC THE LOOP OUT LOUD. ECHO CHECK: RECORD YOUR ATTEMPT (TAP AGAIN TO STOP) — HEARS BACK: ATTEMPT REVERSED → PAUSE → REAL LINE.</div>
+<!-- ================= LISTEN ================= -->
+<div class="screen" id="scr-listen">
+  <button class="homebtn nav-home">⌂ Home</button>
+  <div class="content" style="justify-content:center">
+    <div class="tracked">You Said It Forward</div>
+    <div class="display mid">Listen</div>
+    <div class="lcd">Now hear what the room heard.</div>
+    <div class="gap"></div>
+    <button class="plate" id="playFwdBtn">▶ &nbsp;Play Forward</button>
+    <div class="gap"></div>
+    <button class="plate" id="playRevBtn">◀ &nbsp;Hear It Backwards</button>
+    <div class="gap"></div><div class="gap"></div>
+    <button class="plate primary" id="toPracticeBtn">I'm Ready To Practice</button>
+    <div class="gap"></div>
+    <button class="plate ghost" id="skipPracticeBtn">Skip Practice →</button>
+    <div class="lcd" id="listenLcd"></div>
   </div>
+</div>
 
-  <!-- TAKE -->
-  <div class="panel" id="p2">
+<!-- ================= PRACTICE ================= -->
+<div class="screen" id="scr-practice">
+  <button class="homebtn nav-home">⌂ Home</button>
+  <div class="content">
+    <div class="gap"></div><div class="gap"></div>
+    <div class="tracked dim">Practice · Say It Backwards</div>
+    <div class="gap"></div>
+    <div class="teletext" id="pracScript" style="font-size:clamp(30px,6vw,50px)"></div>
+    <div class="disclaimer">These spellings are a map, not the territory. Trust the sound you practiced.</div>
+    <div class="gap"></div>
+    <button class="togglechip off" id="tagToggle">+ "Lucy, We Love You"</button>
+    <div class="gap"></div>
     <div class="row">
-      <button class="op quiet" id="camBtn">CAMERA ON</button>
-      <button class="op rec" id="takeRec" disabled>● TAKE</button>
+      <button class="plate" style="max-width:200px" id="halfBtn">▶ ½ Speed</button>
+      <button class="plate" style="max-width:200px" id="fullBtn">▶ Full Speed</button>
     </div>
-    <div class="row">
-      <label class="toggle"><input type="checkbox" id="grade" checked> LODGE GRADE (GRAIN + RED)</label>
+    <div class="gap"></div>
+    <button class="plate" id="closeBtn">Am I Close?</button>
+    <div class="lcd" id="pracLcd"></div>
+    <div id="scoreBox" style="display:none;text-align:center">
+      <div class="tracked dim" style="margin-top:8px">The Room Heard You</div>
+      <div class="scorebig" id="scoreNum">84%</div>
+      <div class="disclaimer" id="scoreWord">Eerie enough. The room forgives the rest.</div>
     </div>
-    <div class="row">
-      <button class="op" id="revBtn" disabled>⇄ REVERSE TAKE</button>
-      <button class="op quiet" id="saveBtn" disabled>SAVE</button>
-      <button class="op quiet" id="shareBtn" disabled>SHARE</button>
-    </div>
-    <progress id="prog" value="0" max="100"></progress>
-    <video id="resultVid" controls playsinline></video>
-    <div class="lcd" id="lcd2">TAP CAMERA ON. FACE IN THE OVAL. TAP ● TO ROLL, ■ TO CUT (15s MAX). EVERY TAKE IS KEPT — NOTHING IS OVERWRITTEN.</div>
+    <div class="gap"></div>
+    <button class="plate primary" id="toRoomBtn">I'm Ready</button>
+    <div class="gap"></div>
   </div>
+</div>
 
-  <details open>
-    <summary>REEL · EVERYTHING IN THE VAULT</summary>
-    <div id="reel"></div>
-    <div class="row" style="margin-top:8px">
-      <button class="op quiet" id="exportAll">EXPORT ALL RESULTS</button>
+<!-- ================= THE RED ROOM ================= -->
+<div class="screen" id="scr-room" style="padding:0">
+  <div class="stagebox" style="border-radius:0;border:none">
+    <canvas class="stage" id="roomCanvas" width="720" height="960"></canvas>
+    <div class="overlay" style="padding:max(60px,env(safe-area-inset-top)) 22px 30px">
+      <div class="teletext" id="roomScript"></div>
+      <div class="spacer"></div>
+      <div class="countnum" id="roomCount" style="display:none"></div>
+      <div class="spacer"></div>
+      <div class="tracked dim" id="roomHint" style="pointer-events:none">Tap the red button when ready</div>
     </div>
-    <div class="lcd" id="lcdReel">THE VAULT SURVIVES CRASHES AND RELOADS. STILL: EXPORT TO FILES/PHOTOS AT THE END OF THE NIGHT. BELT AND SUSPENDERS.</div>
-  </details>
+    <div class="recdot" id="roomRec" style="display:none"><i></i><span id="roomTimer"></span></div>
+  </div>
+  <button class="homebtn nav-home" style="z-index:60">⌂</button>
+  <button class="togglechip" id="bgToggle" style="position:fixed;top:max(14px,env(safe-area-inset-top));right:16px;z-index:60">Backdrop: Lodge</button>
+  <button class="recbtn" id="roomRecBtn" style="position:fixed;bottom:max(26px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:60">● Film</button>
+</div>
 
-  <details>
-    <summary>SCRIPT · ONE CHUNK PER LINE · EDIT FREELY (30+ OK)</summary>
-    <textarea id="scriptBox">I am not the man you think I am.
-I lost my arm. I did not lose the message.
-The room is red. The words are turned around.
-Lucy. The map to Wisconsin is under the coffee.
-We live inside a dream. The dream has cheese.
-The curtain opens for those who speak backwards.
-Do not be afraid. It is only your voice, returned.
-The owls carry your mail now.
-Twenty five years is not so long in here.
-Goodbye sounds almost the same in reverse.</textarea>
-    <div class="row" style="margin-top:8px">
-      <button class="op quiet" id="loadScript">LOAD SCRIPT</button>
+<!-- ================= PROCESSING ================= -->
+<div class="screen" id="scr-processing">
+  <div class="content" style="justify-content:center">
+    <div class="tracked">Hold Still</div>
+    <div class="display mid">Walking The<br>Film Backwards</div>
+    <div class="filmstrip"><i></i><i></i><i></i><i></i><i></i></div>
+    <progress id="procProg" value="0" max="100"></progress>
+    <div class="lcd" id="procLcd">unspooling the room…</div>
+  </div>
+</div>
+
+<!-- ================= REVIEW ================= -->
+<div class="screen" id="scr-review">
+  <button class="homebtn nav-home">⌂ Home</button>
+  <div class="content">
+    <div class="gap"></div><div class="gap"></div>
+    <div class="tracked dim">The Film, Reversed</div>
+    <div class="gap"></div>
+    <video id="reviewVid" controls playsinline></video>
+    <div class="lcd" id="reviewMeta"></div>
+    <div class="gap"></div>
+    <button class="plate primary" id="keepBtn">Keep · Share</button>
+    <div class="gap"></div>
+    <div class="row">
+      <button class="plate" style="max-width:200px" id="againBtn">Try Again</button>
+      <button class="plate nav-home" style="max-width:200px">Home</button>
     </div>
-    <div class="lcd">LOADING A NEW SCRIPT KEEPS THE VAULT — RECORDINGS STAY ATTACHED TO THEIR CHUNK NUMBER.</div>
-  </details>
+    <div class="lcd">It's already saved on this iPad either way.<br>Keep opens the share sheet, then the curtains close.</div>
+  </div>
+</div>
+
+<!-- ================= THE REEL ================= -->
+<div class="screen" id="scr-reel">
+  <button class="homebtn nav-home">⌂ Home</button>
+  <div class="content">
+    <div class="gap"></div><div class="gap"></div>
+    <div class="display mid">The Reel</div>
+    <div class="tracked dim" id="reelHeadCount"></div>
+    <div class="gap"></div>
+    <video id="reelVid" controls playsinline style="display:none"></video>
+    <div id="reelList" style="width:100%"></div>
+    <div class="gap"></div>
+    <button class="plate" id="exportAllBtn">Export All</button>
+    <div class="lcd" id="reelLcd"></div>
+    <div class="gap"></div>
+  </div>
 </div>
 
 <script>
-/* =====================================================================
-   LODGE-1 v3
-   - PWA: service worker caches the app; runs fully offline after the
-     first visit. Add to Home Screen for the full-screen unit.
-   - VAULT: IndexedDB. Every ref / take / result is written to disk the
-     moment it exists. Crash, reload, reboot — session restores itself.
-   - GENERATIONS: takes and results are never overwritten; each new one
-     gets the next generation number for its chunk. The reel lists all.
-   - Mic is borrowed per recording and released immediately (iOS audio
-     session stays in clean media mode — no crackle).
-===================================================================== */
+/* ============================================================
+   LUCY'S LODGE v5 — party build
+============================================================ */
+const DATA = {"lines": [{"n": 1, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 2, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 3, "bank": "peaks", "diff": "MEDIUM", "text": "Lola has already visited Wisconsin. In her sleep.", "script": "PEELS  \u00b7  URR  \u00b7  nih  \u00b7  nuh-s'NA-k'sew  \u00b7  dih-tih-ZIHV  \u00b7  ee-DEH-r'law  \u00b7  ZAH  \u00b7  uhh-LOAL"}, {"n": 4, "bank": "peaks", "diff": "MEDIUM", "text": "Your dissertation is already written. It is waiting inside.", "script": "DIE-s'nih  \u00b7  ngih-TYEHW  \u00b7  ZIH  \u00b7  TIH  \u00b7  nuh-TIHR  \u00b7  ee-DEH-r'law  \u00b7  ZIH  \u00b7  nuh-SHEA-ter-sid  \u00b7  ROY"}, {"n": 5, "bank": "peaks", "diff": "EASY", "text": "Your friends are not gone. They are only reversed.", "script": "t'SIR-veer  \u00b7  ee-l'NO  \u00b7  RAW  \u00b7  AITH  \u00b7  NAWG  \u00b7  TAHN  \u00b7  RAW  \u00b7  z'd'NEHRF  \u00b7  ROY"}, {"n": 6, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 7, "bank": "peaks", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 8, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 9, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways. Slowly.", "script": "ee-LWOHLS  \u00b7  ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 10, "bank": "peaks", "diff": "MEDIUM", "text": "You are not leaving. You are being continued.", "script": "do-y'NIH-t'nuhk  \u00b7  ngih-EEB  \u00b7  RAW  \u00b7  OOEE  \u00b7  ngih-VEAL  \u00b7  TAHN  \u00b7  RAW  \u00b7  OOEE"}, {"n": 11, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}, {"n": 12, "bank": "peaks", "diff": "MEDIUM", "text": "Baltimore taught you the dark. Madison will teach the cold.", "script": "d'LOAK  \u00b7  uhth  \u00b7  t'SHEET  \u00b7  LEW  \u00b7  nuh-suh-DAMN  \u00b7  k'ROD  \u00b7  uhth  \u00b7  OOEE  \u00b7  TAUGHT  \u00b7  raw-muh-t'LAWB"}, {"n": 13, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 15, "bank": "peaks", "diff": "MEDIUM", "text": "We will see you in twenty five years. Probably sooner.", "script": "ur-NOOSE  \u00b7  ee-l'buh-BAHRP  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 16, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 17, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 18, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 19, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there. And after. And always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  d'nuh  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 20, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}], "tag": "OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  ee-SOOLE"};
+const TAG_SCRIPT = DATA.tag;
+const TAG_TEXT = "Lucy, we love you.";
+const $=id=>document.getElementById(id);
 
-/* ---------- service worker + persistent storage ---------- */
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
-if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
+if(navigator.storage&&navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
+try{ screen.orientation && screen.orientation.lock && screen.orientation.lock('portrait').catch(()=>{});}catch(e){}
 
-/* ---------- tiny IndexedDB layer ---------- */
-function openDB(){
-  return new Promise((res,rej)=>{
-    const r=indexedDB.open('lodge1',1);
-    r.onupgradeneeded=e=>{
-      const db=e.target.result;
-      const m=db.createObjectStore('media',{keyPath:'id',autoIncrement:true});
-      m.createIndex('by_chunk','chunkIdx');
-      db.createObjectStore('meta',{keyPath:'k'});
-    };
-    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
-  });
-}
+/* ---------- wake lock ---------- */
+let wakeLock=null;
+async function keepAwake(){ try{ wakeLock=await navigator.wakeLock.request('screen'); }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') keepAwake(); });
+
+/* ---------- vault (IndexedDB) ---------- */
+function openDB(){ return new Promise((res,rej)=>{
+  const r=indexedDB.open('lucyslodge',1);
+  r.onupgradeneeded=e=>{ const db=e.target.result;
+    db.createObjectStore('media',{keyPath:'id',autoIncrement:true});
+    db.createObjectStore('meta',{keyPath:'k'}); };
+  r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); });}
 const dbP=openDB();
-async function dbPut(store,val){ const db=await dbP; return new Promise((res,rej)=>{
-  const q=db.transaction(store,'readwrite').objectStore(store).put(val);
-  q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });}
-async function dbAll(store){ const db=await dbP; return new Promise((res,rej)=>{
-  const q=db.transaction(store).objectStore(store).getAll();
-  q.onsuccess=()=>res(q.result||[]); q.onerror=()=>rej(q.error); });}
-async function dbDel(store,id){ const db=await dbP; return new Promise((res,rej)=>{
-  const q=db.transaction(store,'readwrite').objectStore(store).delete(id);
-  q.onsuccess=()=>res(); q.onerror=()=>rej(q.error); });}
-async function dbGetMeta(k){ const db=await dbP; return new Promise((res,rej)=>{
-  const q=db.transaction('meta').objectStore('meta').get(k);
-  q.onsuccess=()=>res(q.result?q.result.v:null); q.onerror=()=>rej(q.error); });}
+async function dbPut(s,v){const db=await dbP;return new Promise((res,rej)=>{const q=db.transaction(s,'readwrite').objectStore(s).put(v);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});}
+async function dbAll(s){const db=await dbP;return new Promise((res,rej)=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error);});}
+async function dbDel(s,id){const db=await dbP;return new Promise((res,rej)=>{const q=db.transaction(s,'readwrite').objectStore(s).delete(id);q.onsuccess=()=>res();q.onerror=()=>rej(q.error);});}
+async function dbGetMeta(k){const db=await dbP;return new Promise((res,rej)=>{const q=db.transaction('meta').objectStore('meta').get(k);q.onsuccess=()=>res(q.result?q.result.v:null);q.onerror=()=>rej(q.error);});}
 const setMeta=(k,v)=>dbPut('meta',{k,v});
 
-/* ---------- state ---------- */
-let chunks=[];        // per chunk: {text} + runtime: fwd,rev,fwdUrl,revUrl,takeBlob,resultBlob,resultUrl
-let rows=[];          // in-memory mirror of the media store: {id,chunkIdx,kind,blob,mime,ts,gen}
-let cur=0;
-const $=id=>document.getElementById(id);
-const lcd=(n,t)=>{$('lcd'+n).textContent=t.toUpperCase();};
+let rows=[]; // media rows: {id,lineN(0=freestyle),kind:'ref'|'result',blob,ts,take,kept,scriptUsed,fwdText}
+function rowsFor(n,kind){ return rows.filter(r=>r.lineN===n&&r.kind===kind).sort((a,b)=>a.take-b.take); }
+function latest(n,kind){ const l=rowsFor(n,kind); return l.length?l[l.length-1]:null; }
+async function vaultAdd(rec){ rec.ts=Date.now(); rec.take=(rowsFor(rec.lineN,rec.kind).slice(-1)[0]?.take||0)+1;
+  rec.id=await dbPut('media',rec); rows.push(rec); return rec; }
 
-function rowsFor(i,kind){ return rows.filter(r=>r.chunkIdx===i && r.kind===kind).sort((a,b)=>a.gen-b.gen); }
-function latest(i,kind){ const l=rowsFor(i,kind); return l.length? l[l.length-1] : null; }
-function nextGen(i,kind){ const l=rowsFor(i,kind); return l.length? l[l.length-1].gen+1 : 1; }
-
-async function vaultAdd(chunkIdx,kind,blob){
-  const rec={chunkIdx,kind,blob,mime:blob.type,ts:Date.now(),gen:nextGen(chunkIdx,kind)};
-  rec.id=await dbPut('media',rec);
-  rows.push(rec);
-  renderLedger();
-  return rec;
-}
-
-/* ---------- ledger ---------- */
-function renderLedger(){
-  const refs=new Set(rows.filter(r=>r.kind==='ref').map(r=>r.chunkIdx)).size;
-  const takes=rows.filter(r=>r.kind==='take').length;
-  const results=rows.filter(r=>r.kind==='result').length;
-  $('ledger').innerHTML='VAULT — REFS <b>'+String(refs).padStart(2,'0')+'</b> · TAKES <b>'
-    +String(takes).padStart(2,'0')+'</b> · REVERSED <b>'+String(results).padStart(2,'0')+'</b>';
-}
-
-/* ---------- script ---------- */
-async function loadScript(persist){
-  const lines=$('scriptBox').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  chunks=lines.map(t=>({text:t}));
-  if(persist) await setMeta('script',$('scriptBox').value);
-  cur=Math.min(cur,chunks.length-1);
-  hydrateChunk(cur); renderChunk(); renderReel(); renderLedger();
-}
-$('loadScript').onclick=()=>loadScript(true);
-
-/* ---------- chunk hydration from vault ---------- */
-function hydrateChunk(i){
-  const c=chunks[i]; if(!c) return;
-  if(!c.takeBlob){ const t=latest(i,'take'); if(t) c.takeBlob=t.blob; }
-  if(!c.resultBlob){ const r=latest(i,'result'); if(r){ c.resultBlob=r.blob; c.resultUrl=URL.createObjectURL(r.blob); } }
-  // ref audio decodes lazily via ensureRef()
-}
-async function ensureRef(c,i){
-  if(c.fwd) return true;
-  const r=latest(i,'ref'); if(!r) return false;
-  const pcm=toMono(await decodeBlob(r.blob));
-  c.fwd=pcm; c.rev=reversePcm(pcm);
-  c.fwdUrl=wavUrl(c.fwd); c.revUrl=wavUrl(c.rev);
-  return true;
-}
-
-function renderChunk(){
-  const c=chunks[cur]; if(!c) return;
-  const rG=rowsFor(cur,'ref').length, tG=rowsFor(cur,'take').length, xG=rowsFor(cur,'result').length;
-  const marks=(rG?'R'+rG:'··')+' '+(tG?'T'+tG:'··')+' '+(xG?'⇄'+xG:'··');
-  $('counterNum').innerHTML=String(cur+1).padStart(2,'0')+' / '+String(chunks.length).padStart(2,'0')+'<em>'+marks+'</em>';
-  $('counterLine').textContent=c.text;
-  const hasRef=!!latest(cur,'ref');
-  $('refPlay').disabled=$('refPlayRev').disabled=!hasRef;
-  $('loopBtn').disabled=$('echoRec').disabled=!hasRef;
-  $('revBtn').disabled=!c.takeBlob;
-  $('saveBtn').disabled=$('shareBtn').disabled=!c.resultBlob;
-  const rv=$('resultVid');
-  if(c.resultUrl){ rv.src=c.resultUrl; rv.style.display='block'; }
-  else { rv.removeAttribute('src'); rv.style.display='none'; }
-  stopPlayback();
-}
-$('prevBtn').onclick=()=>{ cur=(cur-1+chunks.length)%chunks.length; hydrateChunk(cur); renderChunk(); };
-$('nextBtn').onclick=()=>{ cur=(cur+1)%chunks.length; hydrateChunk(cur); renderChunk(); };
-
-/* ---------- modes ---------- */
-[0,1,2].forEach(i=>{
-  $('m'+i).onclick=()=>{
-    [0,1,2].forEach(j=>{ $('m'+j).classList.toggle('active',j===i); $('p'+j).classList.toggle('active',j===i); });
-    if(i!==2) idleScene();
-  };
-});
-
-/* ---------- audio: decode / reverse / wav ---------- */
+/* ---------- audio helpers (proven engine) ---------- */
 async function decodeBlob(blob){
   const ab=await blob.arrayBuffer();
   const c=new (window.AudioContext||window.webkitAudioContext)();
-  try{
-    const buf=await c.decodeAudioData(ab);
-    const ch=[]; for(let i=0;i<buf.numberOfChannels;i++) ch.push(Float32Array.from(buf.getChannelData(i)));
-    return {rate:buf.sampleRate, ch};
-  } finally { c.close(); }
+  try{ const buf=await c.decodeAudioData(ab);
+    const ch=[];for(let i=0;i<buf.numberOfChannels;i++)ch.push(Float32Array.from(buf.getChannelData(i)));
+    return {rate:buf.sampleRate,ch}; } finally{ c.close(); }
 }
-function toMono(pcm){
-  if(pcm.ch.length===1) return pcm;
-  const n=pcm.ch[0].length, out=new Float32Array(n);
-  for(let i=0;i<n;i++){ let s=0; for(const c of pcm.ch) s+=c[i]; out[i]=s/pcm.ch.length; }
-  return {rate:pcm.rate, ch:[out]};
-}
-function reversePcm(pcm){
-  return {rate:pcm.rate, ch:pcm.ch.map(c=>{ const d=Float32Array.from(c); Array.prototype.reverse.call(d); return d; })};
-}
-function concatPcm(a, gapSec, b){
-  const A=toMono(a).ch[0], B=toMono(b).ch[0], rate=a.rate;
-  const gap=Math.round(gapSec*rate);
-  const out=new Float32Array(A.length+gap+B.length);
-  out.set(A,0); out.set(B,A.length+gap);
-  return {rate, ch:[out]};
-}
-function pcmToWav(pcm){
-  const chs=pcm.ch, n=chs[0].length, nc=chs.length, rate=pcm.rate;
-  const bytes=44+n*nc*2, buf=new ArrayBuffer(bytes), dv=new DataView(buf);
-  const wstr=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i));};
-  wstr(0,'RIFF'); dv.setUint32(4,bytes-8,true); wstr(8,'WAVE'); wstr(12,'fmt ');
-  dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,nc,true);
-  dv.setUint32(24,rate,true); dv.setUint32(28,rate*nc*2,true); dv.setUint16(32,nc*2,true);
-  dv.setUint16(34,16,true); wstr(36,'data'); dv.setUint32(40,n*nc*2,true);
-  let o=44;
-  for(let i=0;i<n;i++) for(let c=0;c<nc;c++){
-    let v=Math.max(-1,Math.min(1,chs[c][i]));
-    dv.setInt16(o, v<0? v*0x8000 : v*0x7FFF, true); o+=2;
-  }
-  return new Blob([buf],{type:'audio/wav'});
-}
-function wavUrl(pcm){ return URL.createObjectURL(pcmToWav(pcm)); }
+function toMono(p){ if(p.ch.length===1)return p;
+  const n=p.ch[0].length,out=new Float32Array(n);
+  for(let i=0;i<n;i++){let s=0;for(const c of p.ch)s+=c[i];out[i]=s/p.ch.length;}
+  return {rate:p.rate,ch:[out]}; }
+function reversePcm(p){ return {rate:p.rate,ch:p.ch.map(c=>{const d=Float32Array.from(c);Array.prototype.reverse.call(d);return d;})}; }
+function pcmToWav(p){ const chs=p.ch,n=chs[0].length,nc=chs.length,rate=p.rate;
+  const bytes=44+n*nc*2,buf=new ArrayBuffer(bytes),dv=new DataView(buf);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i));};
+  w(0,'RIFF');dv.setUint32(4,bytes-8,true);w(8,'WAVE');w(12,'fmt ');
+  dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,nc,true);
+  dv.setUint32(24,rate,true);dv.setUint32(28,rate*nc*2,true);dv.setUint16(32,nc*2,true);
+  dv.setUint16(34,16,true);w(36,'data');dv.setUint32(40,n*nc*2,true);
+  let o=44;for(let i=0;i<n;i++)for(let c=0;c<nc;c++){let v=Math.max(-1,Math.min(1,chs[c][i]));dv.setInt16(o,v<0?v*0x8000:v*0x7FFF,true);o+=2;}
+  return new Blob([buf],{type:'audio/wav'}); }
+const player=new Audio(); player.setAttribute('playsinline','');
+function playUrl(url,{rate=1,loop=false}={}){ stopPlay();
+  player.src=url;player.loop=loop;player.preservesPitch=false;player.webkitPreservesPitch=false;
+  player.playbackRate=rate; return player.play().catch(()=>{}); }
+function stopPlay(){ try{player.pause();player.currentTime=0;}catch(e){} }
 
-/* ---------- playback ---------- */
-const player=new Audio();
-player.setAttribute('playsinline','');
-function playUrl(url,{rate=1,loop=false}={}){
-  stopPlayback();
-  player.src=url; player.loop=loop;
-  player.preservesPitch=false; player.webkitPreservesPitch=false;
-  player.playbackRate=rate;
-  return player.play().catch(e=>lcd(1,'Playback blocked: '+e.message));
-}
-function stopPlayback(){ try{ player.pause(); player.currentTime=0; }catch(e){} $('loopStop').disabled=true; }
-
-/* ---------- recording: borrow mic, return mic ---------- */
-function audioMime(){
-  const o=['audio/mp4','audio/webm;codecs=opus','audio/webm'];
-  for(const m of o){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
-  return '';
-}
-async function recAudio(maxSec,onTick){
-  const stream=await navigator.mediaDevices.getUserMedia({
-    audio:{echoCancellation:true, noiseSuppression:true, autoGainControl:true}
+/* ---------- one-time permission: persistent streams ---------- */
+let camStream=null, micTrack=null, camVideo=null;
+async function openStage(){
+  const s=await navigator.mediaDevices.getUserMedia({
+    video:{facingMode:'user',width:{ideal:720},height:{ideal:960}},
+    audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}
   });
-  const r=new MediaRecorder(stream,{mimeType:audioMime()});
-  const parts=[]; r.ondataavailable=e=>{ if(e.data.size) parts.push(e.data); };
-  let iv=null;
-  const done=new Promise(res=>{
-    r.onstop=()=>{ clearInterval(iv); stream.getTracks().forEach(t=>t.stop());
-      res(new Blob(parts,{type:r.mimeType})); };
-  });
-  r.start(200);
-  let t=maxSec; onTick&&onTick(t);
-  iv=setInterval(()=>{ t--; onTick&&onTick(t); if(t<=0) stop(); },1000);
-  function stop(){ if(r.state!=='inactive') r.stop(); }
-  return {done, stop};
-}
-function setLive(btn, live, label, liveLabel){
-  btn.classList.toggle('live', live);
-  btn.textContent=live? liveLabel : label;
-}
-
-/* ---------- REF ---------- */
-let refJob=null;
-$('refRec').onclick=async()=>{
-  if(refJob){ refJob.stop(); return; }
-  stopPlayback();
-  const c=chunks[cur], i=cur;
-  try{
-    refJob=await recAudio(10, t=>$('timer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
-    $('lamp').classList.add('on'); setLive($('refRec'),true,'● REC FORWARD','■ STOP');
-    lcd(0,'Recording… speak the line, then tap ■.');
-    const blob=await refJob.done;
-    refJob=null; $('lamp').classList.remove('on'); $('timer').textContent='';
-    setLive($('refRec'),false,'● REC FORWARD','■ STOP');
-    await vaultAdd(i,'ref',blob);                    // to disk FIRST
-    ['fwdUrl','revUrl'].forEach(k=>{ if(c[k]) URL.revokeObjectURL(c[k]); });
-    const pcm=toMono(await decodeBlob(blob));
-    c.fwd=pcm; c.rev=reversePcm(pcm);
-    c.fwdUrl=wavUrl(c.fwd); c.revUrl=wavUrl(c.rev);
-    lcd(0,'Saved to vault (gen '+rowsFor(i,'ref').length+') + reversed. FWD / REV to listen.');
-    renderChunk();
-  }catch(e){
-    refJob=null; $('lamp').classList.remove('on');
-    setLive($('refRec'),false,'● REC FORWARD','■ STOP');
-    lcd(0,'Mic blocked: '+e.message);
-  }
-};
-$('refPlay').onclick=async()=>{ if(await ensureRef(chunks[cur],cur)) playUrl(chunks[cur].fwdUrl); };
-$('refPlayRev').onclick=async()=>{ if(await ensureRef(chunks[cur],cur)) playUrl(chunks[cur].revUrl); };
-
-/* ---------- LEARN ---------- */
-$('speed').oninput=e=>{
-  $('speedVal').textContent=Number(e.target.value).toFixed(2)+'×';
-  if(!player.paused) player.playbackRate=Number(e.target.value);
-};
-$('loopBtn').onclick=async()=>{
-  if(!await ensureRef(chunks[cur],cur)) return;
-  playUrl(chunks[cur].revUrl,{rate:Number($('speed').value),loop:true});
-  $('loopStop').disabled=false;
-  lcd(1,'Looping your line, reversed. Mimic it. Drag speed live.');
-};
-$('loopStop').onclick=stopPlayback;
-
-let echoJob=null;
-$('echoRec').onclick=async()=>{
-  if(echoJob){ echoJob.stop(); return; }
-  stopPlayback();
-  const c=chunks[cur], i=cur;
-  if(!await ensureRef(c,i)) return;
-  try{
-    echoJob=await recAudio(8, t=>$('timer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
-    $('lamp').classList.add('on'); setLive($('echoRec'),true,'● ECHO CHECK','■ STOP');
-    lcd(1,'Perform the backwards sounds… tap ■ when done.');
-    const blob=await echoJob.done;
-    echoJob=null; $('lamp').classList.remove('on'); $('timer').textContent='';
-    setLive($('echoRec'),false,'● ECHO CHECK','■ STOP');
-    const attemptRev=reversePcm(toMono(await decodeBlob(blob)));
-    const url=wavUrl(concatPcm(attemptRev, 0.4, c.fwd));
-    lcd(1,'Playing: your attempt reversed → pause → the real line.');
-    await playUrl(url);
-    player.onended=()=>{ URL.revokeObjectURL(url); player.onended=null;
-      lcd(1,'Close the gap. Loop, echo, repeat. Then TAKE.'); };
-  }catch(e){
-    echoJob=null; $('lamp').classList.remove('on');
-    setLive($('echoRec'),false,'● ECHO CHECK','■ STOP');
-    lcd(1,'Mic error: '+e.message);
-  }
-};
-
-/* ---------- stage / scene ---------- */
-const stage=$('stage'), sctx=stage.getContext('2d');
-const W=720,H=540;
-let curtainPat=null, grainPat=null;
-function makeCurtain(){
-  const c=document.createElement('canvas'); c.width=W; c.height=H;
-  const x=c.getContext('2d');
-  for(let px=0;px<W;px++){
-    const l=0.35+0.65*(Math.sin(px/22*Math.PI*2)*0.5+0.5);
-    x.fillStyle=`rgb(${Math.round(122*l+18)},${Math.round(14*l)},${Math.round(24*l)})`;
-    x.fillRect(px,0,1,H);
-  }
-  const g=x.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'rgba(0,0,0,.45)'); g.addColorStop(.25,'rgba(0,0,0,0)');
-  g.addColorStop(.85,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.5)');
-  x.fillStyle=g; x.fillRect(0,0,W,H);
-  return c;
-}
-function makeGrain(){
-  const c=document.createElement('canvas'); c.width=160; c.height=160;
-  const x=c.getContext('2d'); const im=x.createImageData(160,160);
-  for(let i=0;i<im.data.length;i+=4){ const v=Math.random()*255|0; im.data[i]=im.data[i+1]=im.data[i+2]=v; im.data[i+3]=26; }
-  x.putImageData(im,0,0); return c;
-}
-const FACE={cx:360, cy:200, rx:64, ry:84};
-function drawScene(x, vid, grade){
-  if(!curtainPat) curtainPat=makeCurtain();
-  if(!grainPat) grainPat=makeGrain();
-  x.drawImage(curtainPat,0,0,W,H);
-  const fT=H*0.76;
-  x.fillStyle='#e9e2d3'; x.fillRect(0,fT,W,H-fT);
-  x.fillStyle='#0c0a09';
-  let y=fT;
-  for(const frac of [0.26,0.34,0.40]){
-    const rh=(H-fT)*frac, zig=rh*1.7;
-    x.beginPath();
-    for(let px=-zig;px<W+zig;px+=zig*2){
-      x.moveTo(px,y+rh); x.lineTo(px+zig,y); x.lineTo(px+zig*2,y+rh); x.lineTo(px+zig,y+rh); x.closePath();
-    }
-    x.fill(); y+=rh;
-  }
-  x.save();
-  x.fillStyle='#141416';
-  x.beginPath();
-  x.moveTo(238,H); x.lineTo(246,330); x.quadraticCurveTo(250,292,300,282);
-  x.lineTo(420,282); x.quadraticCurveTo(452,290,458,318);
-  x.lineTo(452,352); x.lineTo(440,352); x.lineTo(444,H); x.closePath(); x.fill();
-  x.beginPath(); x.moveTo(246,330); x.quadraticCurveTo(214,360,212,440);
-  x.lineTo(238,446); x.quadraticCurveTo(244,380,262,346); x.closePath(); x.fill();
-  x.fillStyle='#1d1d20';
-  x.beginPath(); x.moveTo(440,300); x.quadraticCurveTo(470,318,452,352); x.lineTo(428,344); x.closePath(); x.fill();
-  x.fillStyle='#e8e2d2';
-  x.beginPath(); x.moveTo(330,284); x.lineTo(390,284); x.lineTo(360,352); x.closePath(); x.fill();
-  x.fillStyle='#3a0d12';
-  x.beginPath(); x.moveTo(352,286); x.lineTo(368,286); x.lineTo(364,344); x.lineTo(360,352); x.lineTo(356,344); x.closePath(); x.fill();
-  x.fillStyle='#caa88a'; x.fillRect(342,262,36,26);
-  x.restore();
-  x.save();
-  x.beginPath(); x.ellipse(FACE.cx,FACE.cy,FACE.rx,FACE.ry,0,0,Math.PI*2); x.clip();
-  if(vid && vid.videoWidth){
-    const vw=vid.videoWidth, vh=vid.videoHeight;
-    const s=Math.max(FACE.rx*2.6/vw, FACE.ry*2.6/vh);
-    const dw=vw*s, dh=vh*s;
-    x.drawImage(vid, FACE.cx-dw/2, FACE.cy-dh/2, dw, dh);
-  } else {
-    x.fillStyle='#0a0a0a'; x.fillRect(FACE.cx-FACE.rx,FACE.cy-FACE.ry,FACE.rx*2,FACE.ry*2);
-    x.strokeStyle='rgba(239,230,208,.5)'; x.setLineDash([6,6]); x.lineWidth=2;
-    x.beginPath(); x.ellipse(FACE.cx,FACE.cy,FACE.rx-4,FACE.ry-4,0,0,Math.PI*2); x.stroke();
-  }
-  x.restore();
-  x.strokeStyle='rgba(0,0,0,.55)'; x.lineWidth=6; x.setLineDash([]);
-  x.beginPath(); x.ellipse(FACE.cx,FACE.cy,FACE.rx,FACE.ry,0,0,Math.PI*2); x.stroke();
-  x.fillStyle='#8f8b84';
-  x.beginPath(); x.ellipse(FACE.cx,FACE.cy-FACE.ry+14,FACE.rx+6,26,0,Math.PI,0); x.fill();
-  if(grade){
-    x.fillStyle='rgba(122,14,24,0.13)'; x.fillRect(0,0,W,H);
-    x.globalAlpha=0.5;
-    x.drawImage(grainPat, Math.random()*80|0, Math.random()*80|0, 160,160, 0,0,W,H);
-    x.globalAlpha=1;
-    if(Math.random()<0.08){ x.fillStyle='rgba(0,0,0,'+(Math.random()*0.06)+')'; x.fillRect(0,0,W,H); }
-  }
-}
-function idleScene(){ drawScene(sctx,null,$('grade').checked); }
-$('grade').onchange=()=>{ if(!camStream) idleScene(); };
-
-/* ---------- TAKE ---------- */
-let camStream=null, camVideo=null, takeJob=null;
-function vMime(){
-  const o=['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8,opus','video/webm'];
-  for(const m of o){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
-  return '';
-}
-async function cameraOn(){
-  camStream=await navigator.mediaDevices.getUserMedia({
-    video:{facingMode:'user',width:{ideal:640},height:{ideal:480}}
-  });
+  camStream=new MediaStream(s.getVideoTracks());
+  micTrack=s.getAudioTracks()[0];
+  micTrack.enabled=false;                      // mic sleeps between recordings
   camVideo=document.createElement('video');
-  camVideo.srcObject=camStream; camVideo.muted=true; camVideo.playsInline=true;
-  camVideo.setAttribute('playsinline',''); await camVideo.play();
-  $('takeRec').disabled=false;
-  (function loop(){ if(!camStream) return; drawScene(sctx,camVideo,$('grade').checked); requestAnimationFrame(loop); })();
+  camVideo.srcObject=camStream;camVideo.muted=true;camVideo.playsInline=true;
+  camVideo.setAttribute('playsinline','');await camVideo.play();
+  keepAwake();
 }
-function cameraOff(){
-  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
-  $('takeRec').disabled=true;
+function recMime(kinds){ const o=kinds==='a'?['audio/mp4','audio/webm;codecs=opus','audio/webm']
+  :['video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp8,opus','video/webm'];
+  for(const m of o){ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m; } return ''; }
+function recordStream(stream,mime,maxSec,onTick){
+  const r=new MediaRecorder(stream,{mimeType:mime});
+  const parts=[];r.ondataavailable=e=>{if(e.data.size)parts.push(e.data);};
+  let iv=null;
+  const done=new Promise(res=>{ r.onstop=()=>{clearInterval(iv);micTrack.enabled=false;res(new Blob(parts,{type:mime}));}; });
+  micTrack.enabled=true;
+  r.start(250);
+  let t=maxSec;onTick&&onTick(t);
+  iv=setInterval(()=>{t--;onTick&&onTick(t);if(t<=0)stop();},1000);
+  function stop(){ if(r.state!=='inactive')r.stop(); }
+  return {done,stop};
 }
-$('camBtn').onclick=async()=>{
-  try{ await cameraOn(); lcd(2,'Camera on. Face in the oval. Tap ● to roll.'); }
-  catch(e){ lcd(2,'Camera blocked: '+e.message); }
-};
-$('takeRec').onclick=async()=>{
-  if(takeJob){ takeJob.stop(); return; }
-  const m=vMime(); if(!m){ lcd(2,'This browser cannot record video.'); return; }
-  const c=chunks[cur], i=cur;
-  try{
-    const micS=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
-    const combo=new MediaStream([...camStream.getVideoTracks(), ...micS.getAudioTracks()]);
-    const r=new MediaRecorder(combo,{mimeType:m});
-    const parts=[]; r.ondataavailable=e=>{ if(e.data.size) parts.push(e.data); };
-    let iv=null;
-    const done=new Promise(res=>{
-      r.onstop=()=>{ clearInterval(iv); micS.getTracks().forEach(t=>t.stop()); res(new Blob(parts,{type:m})); };
+
+/* ---------- navigation ---------- */
+const screens=document.querySelectorAll('.screen');
+let currentScreen='scr-home';
+function show(id){ screens.forEach(s=>s.classList.toggle('on',s.id===id)); currentScreen=id;
+  if(id!=='scr-room'&&id!=='scr-forward'){ stopRoomLoop(); }
+  if(id==='scr-home'){ renderHome(); } }
+document.querySelectorAll('.nav-home').forEach(b=>b.onclick=()=>{ stopPlay(); abortAnyRec(); show('scr-home'); });
+$('gearBtn').onclick=()=>show('scr-settings');
+let activeJob=null;
+function abortAnyRec(){ if(activeJob){try{activeJob.stop();}catch(e){}activeJob=null;} }
+
+/* ---------- session state ---------- */
+let sel=null;          // selected line object or null for freestyle
+let tagOn=false;
+let refPcm=null, refRevPcm=null, refFwdUrl=null, refRevUrl=null;
+let lastResult=null;   // vault row of last processed result
+
+/* ---------- HOME ---------- */
+function diffDots(d){ return d==='EASY'?'●○○':'●●○'; }
+function renderHome(){
+  const mk=(bank,el)=>{
+    el.innerHTML='';
+    const list=DATA.lines.filter(l=>l.bank===bank)
+      .sort((a,b)=> (a.diff===b.diff? a.n-b.n : (a.diff==='EASY'?-1:1)));
+    list.forEach(l=>{
+      const kept=rows.some(r=>r.lineN===l.n&&r.kind==='result'&&r.kept);
+      const b=document.createElement('button');
+      b.className='chip'+(kept?' kept':'');
+      b.innerHTML='<span class="dots">'+diffDots(l.diff)+'</span><span>'+l.text+'</span>'+(kept?'<span class="keptbadge">KEPT</span>':'');
+      b.onclick=()=>startLine(l);
+      el.appendChild(b);
     });
-    r.start(250);
-    let t=15; $('timer').textContent='0:15';
-    iv=setInterval(()=>{ t--; $('timer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'); if(t<=0)stop(); },1000);
-    function stop(){ if(r.state!=='inactive') r.stop(); }
-    takeJob={stop};
-    $('lamp').classList.add('on'); setLive($('takeRec'),true,'● TAKE','■ CUT');
-    lcd(2,'Rolling. Speak the reversed sounds. Tap ■ to cut.');
-    const blob=await done;
-    takeJob=null; $('lamp').classList.remove('on'); $('timer').textContent='';
-    setLive($('takeRec'),false,'● TAKE','■ CUT');
-    const rec=await vaultAdd(i,'take',blob);          // to disk FIRST
-    c.takeBlob=blob;
-    lcd(2,'Take '+rec.gen+' in the vault ('+(blob.size/1024/1024).toFixed(1)+' MB). Reverse it — or ● for take '+(rec.gen+1)+'.');
-    renderChunk();
-  }catch(e){
-    takeJob=null; $('lamp').classList.remove('on');
-    setLive($('takeRec'),false,'● TAKE','■ CUT');
-    lcd(2,'Recording error: '+e.message);
-  }
+  };
+  mk('peaks',$('bankPeaks')); mk('sweet',$('bankSweet'));
+  const keptN=rows.filter(r=>r.kind==='result'&&r.kept).length;
+  const allN=rows.filter(r=>r.kind==='result').length;
+  $('reelCount').textContent = allN? (keptN+' kept · '+allN+' filmed tonight') : 'Nothing filmed yet.';
+}
+$('freestyleBtn').onclick=async()=>{ sel=null; tagOn=false; if(!(await ensureStage()))return; enterRoom(); };
+$('reelBtn').onclick=()=>{ renderReel(); show('scr-reel'); };
+
+/* ---------- permission flow ---------- */
+let pendingAfterPerm=null;
+async function ensureStage(){
+  if(camStream) return true;
+  show('scr-perm'); 
+  return new Promise(res=>{ pendingAfterPerm=res; });
+}
+$('permBtn').onclick=async()=>{
+  $('permLcd').textContent='';
+  try{ await openStage(); const f=pendingAfterPerm; pendingAfterPerm=null; if(f)f(true); }
+  catch(e){ $('permLcd').textContent='The stage stayed shut: '+e.message; }
 };
 
-/* ---------- reverse engine ---------- */
-const FPS=12;
-function seekTo(v,t){ return new Promise(r=>{ const h=()=>{v.removeEventListener('seeked',h);r();}; v.addEventListener('seeked',h); v.currentTime=t; }); }
-async function getDuration(v){ if(isFinite(v.duration)&&v.duration>0) return v.duration; await seekTo(v,1e7); return v.duration; }
+/* ---------- line flow: FORWARD ---------- */
+async function startLine(l){
+  sel=l; tagOn=false; refPcm=refRevPcm=null;
+  if(refFwdUrl){URL.revokeObjectURL(refFwdUrl);refFwdUrl=null;}
+  if(refRevUrl){URL.revokeObjectURL(refRevUrl);refRevUrl=null;}
+  if(!(await ensureStage()))return;
+  $('fwdLineNo').textContent='Line '+String(l.n).padStart(2,'0')+' · '+(l.bank==='peaks'?'Twin Peaks':'Sweet');
+  $('fwdLineText').textContent=l.text;
+  $('fwdLcd').textContent='Say the line normally, like you mean it. Tap to start — tap again to stop.';
+  show('scr-forward');
+  startFwdPreview();
+}
+let fwdRAF=null;
+function startFwdPreview(){
+  const c=$('fwdCanvas'),x=c.getContext('2d');
+  cancelAnimationFrame(fwdRAF);
+  (function loop(){ if(currentScreen!=='scr-forward')return;
+    drawCameraCover(x,c.width,c.height);
+    fwdRAF=requestAnimationFrame(loop); })();
+}
+function drawCameraCover(x,W,H){
+  x.fillStyle='#000';x.fillRect(0,0,W,H);
+  if(!camVideo||!camVideo.videoWidth)return;
+  const vw=camVideo.videoWidth,vh=camVideo.videoHeight;
+  const s=Math.max(W/vw,H/vh),dw=vw*s,dh=vh*s;
+  x.save();x.translate(W,0);x.scale(-1,1);
+  x.drawImage(camVideo,(W-dw)/2,(H-dh)/2,dw,dh);x.restore();
+  x.fillStyle='rgba(122,14,24,.08)';x.fillRect(0,0,W,H);
+}
+async function countdown(el){
+  el.style.display='block';
+  for(const n of ['3','2','1']){ el.textContent=n; await new Promise(r=>setTimeout(r,800)); }
+  el.style.display='none';
+}
+$('fwdRecBtn').onclick=async()=>{
+  if(activeJob){ activeJob.stop(); return; }
+  stopPlay();
+  await countdown($('fwdCount'));
+  const mime=recMime('a');
+  activeJob=recordStream(new MediaStream([micTrack]),mime,30,
+    t=>$('fwdTimer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
+  $('fwdRec').style.display='flex';
+  $('fwdRecBtn').textContent='■ Stop';
+  $('fwdLcd').textContent='Recording — say the line, then tap stop.';
+  const blob=await activeJob.done; activeJob=null;
+  $('fwdRec').style.display='none'; $('fwdRecBtn').innerHTML='Say It<br>Forward';
+  if(currentScreen!=='scr-forward') return;   // user bailed via Home
+  await vaultAdd({lineN:sel.n,kind:'ref',blob});
+  refPcm=toMono(await decodeBlob(blob));
+  refRevPcm=reversePcm(refPcm);
+  refFwdUrl=URL.createObjectURL(pcmToWav(refPcm));
+  refRevUrl=URL.createObjectURL(pcmToWav(refRevPcm));
+  show('scr-listen');
+};
 
-$('revBtn').onclick=async()=>{
-  const c=chunks[cur], i=cur; if(!c.takeBlob) return;
-  const prog=$('prog'); prog.style.display='block'; prog.value=0;
-  $('revBtn').disabled=true;
-  const hadCam=!!camStream;
-  cameraOff();
+/* ---------- LISTEN ---------- */
+$('playFwdBtn').onclick=()=>{ if(refFwdUrl)playUrl(refFwdUrl); };
+$('playRevBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl); };
+$('toPracticeBtn').onclick=()=>{ setupPractice(); show('scr-practice'); };
+$('skipPracticeBtn').onclick=()=>{ enterRoom(); };
+
+/* ---------- PRACTICE ---------- */
+function currentScript(){ return sel? sel.script+(tagOn?'  ·  '+TAG_SCRIPT:'') : ''; }
+function currentFwdText(){ return sel? sel.text+(tagOn?' '+TAG_TEXT:'') : ''; }
+function setupPractice(){
+  $('pracScript').textContent=currentScript();
+  $('scoreBox').style.display='none';
+  $('pracLcd').textContent='';
+  $('tagToggle').classList.toggle('off',!tagOn);
+}
+$('tagToggle').onclick=()=>{ tagOn=!tagOn; setupPractice(); };
+$('halfBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:.55,loop:true}); $('pracLcd').textContent='Looping slow. Copy it out loud. Tap Full Speed or a play button again to switch.'; };
+$('fullBtn').onclick=()=>{ if(refRevUrl)playUrl(refRevUrl,{rate:1,loop:true}); $('pracLcd').textContent='Looping full speed.'; };
+
+function envelope(pcm,bins){
+  const d=toMono(pcm).ch[0],out=new Float32Array(bins),step=Math.max(1,Math.floor(d.length/bins));
+  for(let b=0;b<bins;b++){let s=0,st=b*step,en=Math.min(d.length,st+step);
+    for(let i=st;i<en;i++)s+=Math.abs(d[i]); out[b]=s/Math.max(1,en-st); }
+  const mx=Math.max(...out)||1; return out.map(v=>v/mx);
+}
+function score(a,b){
+  const A=envelope(a,80),B=envelope(b,80);
+  let ma=0,mb=0;for(let i=0;i<80;i++){ma+=A[i];mb+=B[i];}ma/=80;mb/=80;
+  let num=0,da=0,db=0;
+  for(let i=0;i<80;i++){const x=A[i]-ma,y=B[i]-mb;num+=x*y;da+=x*x;db+=y*y;}
+  const corr=num/Math.sqrt((da||1)*(db||1));
+  return Math.round(Math.max(55,Math.min(97,60+corr*40)));
+}
+$('closeBtn').onclick=async()=>{
+  if(activeJob){activeJob.stop();return;}
+  stopPlay();
+  $('pracLcd').textContent='Say your backwards version now… tap Am I Close again to stop.';
+  $('closeBtn').textContent='■ Stop';
+  activeJob=recordStream(new MediaStream([micTrack]),recMime('a'),20,()=>{});
+  const blob=await activeJob.done; activeJob=null;
+  $('closeBtn').textContent='Am I Close?';
+  const attempt=toMono(await decodeBlob(blob));
+  const attemptRev=reversePcm(attempt);
+  const url=URL.createObjectURL(pcmToWav(attemptRev));
+  $('pracLcd').textContent='Your try, flipped… then the real line.';
+  await playUrl(url);
+  await new Promise(r=>{ player.onended=()=>{player.onended=null;r();}; setTimeout(r,25000); });
+  URL.revokeObjectURL(url);
+  await playUrl(refFwdUrl);
+  await new Promise(r=>{ player.onended=()=>{player.onended=null;r();}; setTimeout(r,25000); });
+  const pct=score(attemptRev,refPcm);
+  $('scoreNum').textContent=pct+'%';
+  $('scoreWord').textContent= pct>=85?'Eerie enough. The room is impressed.'
+    : pct>=70?'Eerie enough. Trust the sound you practiced — the room forgives the rest.'
+    : 'The room heard something. Loop it once more, then go anyway.';
+  $('scoreBox').style.display='block';
+  $('pracLcd').textContent='';
+};
+$('toRoomBtn').onclick=()=>enterRoom();
+
+/* ---------- THE RED ROOM ---------- */
+let backdropImg=null, useBackdrop=true, seg=null, segReady=false, segFailed=false;
+let roomRunning=false, roomRecording=null, roomRecCanvasStream=null;
+
+async function loadBackdropFromVault(){
+  const b=await dbGetMeta('backdropBlob');
+  if(b){ backdropImg=new Image(); backdropImg.src=URL.createObjectURL(b);
+    await new Promise(r=>backdropImg.onload=r);
+    $('backdropStatus').textContent='Backdrop loaded ✓'; }
+}
+$('loadBackdropBtn').onclick=()=>$('backdropFile').click();
+$('backdropFile').onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  await setMeta('backdropBlob',f);
+  await loadBackdropFromVault();
+  $('backdropStatus').textContent='Backdrop loaded ✓ — the room is dressed.';
+};
+$('wipeBtn').onclick=async()=>{
+  if(!confirm('Erase every recording and setting on this iPad?'))return;
+  const db=await dbP; db.transaction(['media','meta'],'readwrite');
+  for(const r of [...rows]) await dbDel('media',r.id);
+  rows=[]; renderHome(); $('backdropStatus').textContent='Erased.';
+};
+
+async function initSeg(){
+  if(seg||segFailed)return;
   try{
-    lcd(2,'Reversing sound…');
-    const takePcm=reversePcm(await decodeBlob(c.takeBlob));
+    if(typeof SelfieSegmentation==='undefined') throw new Error('model unavailable');
+    seg=new SelfieSegmentation({locateFile:f=>'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/'+f});
+    seg.setOptions({modelSelection:1});
+    seg.onResults(onSegResults);
+    if(seg.initialize) await seg.initialize();
+    segReady=true;
+  }catch(e){ seg=null; segFailed=true; useBackdrop=false; syncBgToggle(); }
+}
+const roomC=$('roomCanvas'), roomX=roomC.getContext('2d');
+const RW=720,RH=960;
+function paintBackdrop(x){
+  if(backdropImg){
+    const iw=backdropImg.width,ih=backdropImg.height;
+    const s=Math.max(RW/iw,RH/ih),dw=iw*s,dh=ih*s;
+    x.drawImage(backdropImg,(RW-dw)/2,(RH-dh)/2,dw,dh);
+  } else paintCurtainRoom(x);
+}
+let curtainPat=null;
+function paintCurtainRoom(x){
+  if(!curtainPat){
+    const c=document.createElement('canvas');c.width=RW;c.height=RH;
+    const cx=c.getContext('2d');
+    for(let px=0;px<RW;px++){
+      const l=0.35+0.65*(Math.sin(px/24*Math.PI*2)*0.5+0.5);
+      cx.fillStyle=`rgb(${Math.round(122*l+18)},${Math.round(14*l)},${Math.round(24*l)})`;
+      cx.fillRect(px,0,1,RH);
+    }
+    const fT=RH*0.82; cx.fillStyle='#e9e2d3';cx.fillRect(0,fT,RW,RH-fT);
+    cx.fillStyle='#0c0a09'; let y=fT;
+    for(const fr of [0.45,0.55]){ const rh=(RH-fT)*fr,zig=rh*1.7;
+      cx.beginPath();
+      for(let px=-zig;px<RW+zig;px+=zig*2){cx.moveTo(px,y+rh);cx.lineTo(px+zig,y);cx.lineTo(px+2*zig,y+rh);cx.lineTo(px+zig,y+rh);cx.closePath();}
+      cx.fill(); y+=rh; }
+    curtainPat=c;
+  }
+  x.drawImage(curtainPat,0,0);
+}
+const maskC=document.createElement('canvas'); maskC.width=RW; maskC.height=RH;
+const maskX=maskC.getContext('2d');
+function onSegResults(res){
+  if(!roomRunning)return;
+  // person cutout on temp canvas
+  maskX.save();
+  maskX.clearRect(0,0,RW,RH);
+  maskX.translate(RW,0);maskX.scale(-1,1);
+  const iw=res.image.width,ih=res.image.height;
+  const s=Math.max(RW/iw,RH/ih),dw=iw*s,dh=ih*s,ox=(RW-dw)/2,oy=(RH-dh)/2;
+  maskX.filter='blur(3px)';
+  maskX.drawImage(res.segmentationMask,ox,oy,dw,dh);
+  maskX.filter='none';
+  maskX.globalCompositeOperation='source-in';
+  maskX.drawImage(res.image,ox,oy,dw,dh);
+  maskX.restore();
+  maskX.globalCompositeOperation='source-over';
+  // composite
+  paintBackdrop(roomX);
+  roomX.drawImage(maskC,0,0);
+  roomX.fillStyle='rgba(122,14,24,.10)';roomX.fillRect(0,0,RW,RH);
+}
+let segLoopBusy=false;
+async function roomLoop(){
+  if(!roomRunning)return;
+  if(useBackdrop&&segReady){
+    if(!segLoopBusy&&camVideo&&camVideo.videoWidth){
+      segLoopBusy=true;
+      try{ await seg.send({image:camVideo}); }catch(e){}
+      segLoopBusy=false;
+    }
+  } else {
+    // fallback: full camera with painted curtain borders
+    paintCurtainBordered(roomX);
+  }
+  requestAnimationFrame(roomLoop);
+}
+function paintCurtainBordered(x){
+  paintCurtainRoom(x);
+  const side=Math.round(RW*0.11), fH=Math.round(RH*0.14);
+  const cw=RW-side*2, ch=RH-fH;
+  if(camVideo&&camVideo.videoWidth){
+    const vw=camVideo.videoWidth,vh=camVideo.videoHeight;
+    const s=Math.max(cw/vw,ch/vh),dw=vw*s,dh=vh*s;
+    x.save();x.beginPath();x.rect(side,0,cw,ch);x.clip();
+    x.translate(RW,0);x.scale(-1,1);
+    x.drawImage(camVideo, side+(cw-dw)/2, (ch-dh)/2, dw, dh);
+    x.restore();
+    x.fillStyle='rgba(122,14,24,.10)';x.fillRect(0,0,RW,RH);
+  }
+}
+function stopRoomLoop(){ roomRunning=false; }
+function syncBgToggle(){
+  $('bgToggle').textContent='Backdrop: '+(useBackdrop&&!segFailed?'Lodge':'Off');
+  $('bgToggle').classList.toggle('off',!(useBackdrop&&!segFailed));
+}
+$('bgToggle').onclick=()=>{ if(segFailed)return; useBackdrop=!useBackdrop; syncBgToggle(); };
 
-    lcd(2,'Walking the film backwards…');
+async function enterRoom(){
+  if(!(await ensureStage()))return;
+  $('roomScript').textContent= sel? currentScript() : '';
+  $('roomHint').textContent= sel? 'Tap the red button when ready':'No script. Say anything. The room will turn it around.';
+  syncBgToggle();
+  show('scr-room');
+  keepAwake();
+  roomRunning=true;
+  initSeg().then(()=>{}); // async; falls back automatically
+  roomLoop();
+}
+$('roomRecBtn').onclick=async()=>{
+  if(roomRecording){ roomRecording.stop(); return; }
+  await countdown($('roomCount'));
+  const mime=recMime('v');
+  roomRecCanvasStream=roomC.captureStream(24);
+  const stream=new MediaStream([...roomRecCanvasStream.getVideoTracks(), micTrack]);
+  roomRecording=recordStream(stream,mime,60,
+    t=>$('roomTimer').textContent='0:'+String(Math.max(0,t)).padStart(2,'0'));
+  activeJob=roomRecording;
+  $('roomRec').style.display='flex';
+  $('roomRecBtn').textContent='■ Cut';
+  $('roomHint').textContent='';
+  const blob=await roomRecording.done;
+  roomRecording=null; activeJob=null;
+  $('roomRec').style.display='none';
+  $('roomRecBtn').textContent='● Film';
+  if(currentScreen!=='scr-room'){ stopRoomLoop(); return; }  // user bailed via Home
+  stopRoomLoop();
+  processTake(blob,mime);
+};
+
+/* ---------- PROCESSING: reverse + caption burn ---------- */
+function seekTo(v,t){return new Promise(r=>{const h=()=>{v.removeEventListener('seeked',h);r();};v.addEventListener('seeked',h);v.currentTime=t;});}
+async function getDuration(v){ if(isFinite(v.duration)&&v.duration>0)return v.duration; await seekTo(v,1e7); return v.duration; }
+function drawCaption(x,text){
+  if(!text)return;
+  const maxW=RW*0.86; x.font='italic 500 34px "Zilla Slab",Georgia,serif';
+  x.textAlign='center'; 
+  const words=text.split(' '),linesArr=[];let line='';
+  for(const w of words){ const t=line?line+' '+w:w;
+    if(x.measureText(t).width>maxW&&line){linesArr.push(line);line=w;}else line=t; }
+  if(line)linesArr.push(line);
+  const lh=44, y0=RH-40-(linesArr.length-1)*lh;
+  x.save();
+  x.shadowColor='rgba(0,0,0,.95)';x.shadowBlur=12;
+  x.fillStyle='#efe6d0';
+  linesArr.forEach((l,i)=>x.fillText(l,RW/2,y0+i*lh));
+  x.restore();
+}
+async function processTake(blob,srcMime){
+  show('scr-processing');
+  const prog=$('procProg');prog.value=0;
+  const caption= sel? '“'+currentFwdText()+'”' : '[ speaking in Lodge ]';
+  try{
+    $('procLcd').textContent='reversing the sound…';
+    const pcm=reversePcm(await decodeBlob(blob));
+    $('procLcd').textContent='unspooling the room…';
     const v=document.createElement('video');
-    v.src=URL.createObjectURL(c.takeBlob); v.muted=true; v.playsInline=true; v.setAttribute('playsinline','');
+    v.src=URL.createObjectURL(blob);v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');
     await new Promise(r=>v.onloadedmetadata=r);
-    const dur=Math.min(await getDuration(v),16);
-    const work=document.createElement('canvas'); work.width=W; work.height=H;
-    const wctx=work.getContext('2d');
-    const frames=[]; const total=Math.max(1,Math.floor(dur*FPS));
-    const grade=$('grade').checked;
+    const FPS=12,dur=Math.min(await getDuration(v),61);
+    const work=document.createElement('canvas');work.width=RW;work.height=RH;
+    const wx=work.getContext('2d');
+    const frames=[];const total=Math.max(1,Math.floor(dur*FPS));
     for(let k=0;k<total;k++){
-      await seekTo(v, Math.min(k/FPS, dur-0.05));
-      drawScene(wctx, v, grade);
-      frames.push(await new Promise(r=>work.toBlob(r,'image/jpeg',0.82)));
-      prog.value=Math.round(60*k/total);
+      await seekTo(v,Math.min(k/FPS,dur-0.05));
+      wx.drawImage(v,0,0,RW,RH);
+      drawCaption(wx,caption);
+      frames.push(await new Promise(r=>work.toBlob(r,'image/jpeg',0.8)));
+      prog.value=Math.round(55*k/total);
+      if(k%12===0)$('procLcd').textContent='reversing '+total+' frames · unspooling the room · '+Math.round(100*k/total)+'%';
     }
     URL.revokeObjectURL(v.src);
-
-    lcd(2,'Recording the other side…');
+    $('procLcd').textContent='recording the other side…';
     const a=new (window.AudioContext||window.webkitAudioContext)();
-    if(a.state==='suspended') await a.resume();
-    const abuf=a.createBuffer(1, takePcm.ch[0].length, takePcm.rate);
-    abuf.getChannelData(0).set(takePcm.ch[0]);
-    const out=document.createElement('canvas'); out.width=W; out.height=H;
-    const octx=out.getContext('2d');
+    if(a.state==='suspended')await a.resume();
+    const m=toMono(pcm);
+    const abuf=a.createBuffer(1,m.ch[0].length,m.rate);
+    abuf.getChannelData(0).set(m.ch[0]);
+    const out=document.createElement('canvas');out.width=RW;out.height=RH;
+    const ox=out.getContext('2d');
     const vs=out.captureStream(FPS);
     const dest=a.createMediaStreamDestination();
-    const sn=a.createBufferSource(); sn.buffer=abuf; sn.connect(dest);
-    const combo=new MediaStream([...vs.getVideoTracks(), ...dest.stream.getAudioTracks()]);
-    const mime=vMime();
+    const sn=a.createBufferSource();sn.buffer=abuf;sn.connect(dest);
+    const combo=new MediaStream([...vs.getVideoTracks(),...dest.stream.getAudioTracks()]);
+    const mime=recMime('v');
     const rec=new MediaRecorder(combo,{mimeType:mime});
-    const parts=[]; rec.ondataavailable=e=>{ if(e.data.size) parts.push(e.data); };
+    const parts=[];rec.ondataavailable=e=>{if(e.data.size)parts.push(e.data);};
     const done=new Promise(r=>rec.onstop=r);
     let idx=frames.length-1;
-    const paint=async k=>{ const b=await createImageBitmap(frames[k]); octx.drawImage(b,0,0); b.close&&b.close(); };
+    const paint=async k=>{const b=await createImageBitmap(frames[k]);ox.drawImage(b,0,0);b.close&&b.close();};
     await paint(idx);
-    rec.start(250); sn.start();
+    rec.start(250);sn.start();
     const t0=performance.now();
-    await new Promise(res=>{
-      const tick=async()=>{
-        const want=frames.length-1-Math.floor((performance.now()-t0)/1000*FPS);
-        if(want<0){ res(); return; }
-        if(want<idx){ idx=want; await paint(idx); prog.value=60+Math.round(40*(1-idx/frames.length)); }
-        setTimeout(tick,1000/FPS/2);
-      };
-      tick();
-    });
-    setTimeout(()=>rec.stop(),300); await done; a.close();
-
-    const resultBlob=new Blob(parts,{type:mime});
-    const row=await vaultAdd(i,'result',resultBlob);   // to disk FIRST
-    if(c.resultUrl) URL.revokeObjectURL(c.resultUrl);
-    c.resultBlob=resultBlob; c.resultUrl=URL.createObjectURL(resultBlob);
-    lcd(2,'Reversed take '+row.gen+' vaulted. '+(hadCam?'Tap CAMERA ON for the next take.':'Advance ▶ and pass the phone.'));
-    prog.style.display='none';
-    renderChunk(); renderReel();
-  }catch(e){ lcd(2,'Slipped through the curtain: '+e.message); prog.style.display='none'; }
-  $('revBtn').disabled=false;
-};
-
-/* ---------- save / share / reel ---------- */
-function ext(b){ return (b.type||'').includes('mp4')?'mp4':'webm'; }
-function rowName(r){ return 'lodge-'+String(r.chunkIdx+1).padStart(2,'0')+'-g'+r.gen+'.'+ext(r.blob); }
-function saveRow(r){
-  const a=document.createElement('a'); a.href=URL.createObjectURL(r.blob);
-  a.download=rowName(r); a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    await new Promise(res=>{ const tick=async()=>{
+      const want=frames.length-1-Math.floor((performance.now()-t0)/1000*FPS);
+      if(want<0){res();return;}
+      if(want<idx){idx=want;await paint(idx);prog.value=55+Math.round(45*(1-idx/frames.length));}
+      setTimeout(tick,1000/FPS/2); }; tick(); });
+    setTimeout(()=>rec.stop(),300);await done;a.close();
+    const result=new Blob(parts,{type:mime});
+    lastResult=await vaultAdd({lineN:sel?sel.n:0,kind:'result',blob:result,kept:false,
+      scriptUsed:sel?currentScript():'freestyle',fwdText:sel?currentFwdText():'Freestyle'});
+    // review
+    $('reviewVid').src=URL.createObjectURL(result);
+    $('reviewMeta').textContent=(sel?('Line '+String(sel.n).padStart(2,'0')):'Freestyle')+' · Take '+lastResult.take+' · saved ✓';
+    show('scr-review');
+  }catch(e){
+    $('procLcd').textContent='Slipped through the curtain: '+e.message+' — tap Home and try again.';
+  }
 }
+
+/* ---------- REVIEW ---------- */
+function ext(b){return (b.type||'').includes('mp4')?'mp4':'webm';}
+function rowName(r){ return (r.lineN? 'lucys-lodge-line'+String(r.lineN).padStart(2,'0'):'lucys-lodge-freestyle')+'-take'+r.take+'.'+ext(r.blob); }
 async function shareRow(r){
   const f=new File([r.blob],rowName(r),{type:r.blob.type});
-  if(navigator.canShare && navigator.canShare({files:[f]})){
-    try{ await navigator.share({files:[f], title:rowName(r)}); }catch(e){}
-  } else saveRow(r);
+  if(navigator.canShare&&navigator.canShare({files:[f]})){
+    try{ await navigator.share({files:[f],title:'A message for Lucy'}); }catch(e){}
+  } else {
+    const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=rowName(r);a.click();
+  }
 }
-$('saveBtn').onclick=()=>{ const r=latest(cur,'result'); if(r) saveRow(r); };
-$('shareBtn').onclick=()=>{ const r=latest(cur,'result'); if(r) shareRow(r); };
+$('keepBtn').onclick=async()=>{
+  if(!lastResult)return;
+  lastResult.kept=true; await dbPut('media',lastResult);
+  await shareRow(lastResult);
+  show('scr-home');
+};
+$('againBtn').onclick=()=>{ enterRoom(); };
 
+/* ---------- THE REEL ---------- */
 function renderReel(){
-  const reel=$('reel'); reel.innerHTML='';
-  const results=rows.filter(r=>r.kind==='result').sort((a,b)=>a.chunkIdx-b.chunkIdx || a.gen-b.gen);
-  if(!results.length){ reel.innerHTML='<div class="lbl" style="padding:8px 4px">NO REVERSED TAKES YET.</div>'; return; }
+  const list=$('reelList');list.innerHTML='';
+  const results=rows.filter(r=>r.kind==='result').sort((a,b)=>b.ts-a.ts);
+  $('reelHeadCount').textContent=results.filter(r=>r.kept).length+' kept · '+results.length+' filmed';
+  if(!results.length){ list.innerHTML='<div class="lcd">The reel is empty. Go say something backwards.</div>'; return; }
   results.forEach(r=>{
-    const d=document.createElement('div'); d.className='reel-item';
-    const text=(chunks[r.chunkIdx]?chunks[r.chunkIdx].text:'?').slice(0,22);
-    const when=new Date(r.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    d.innerHTML='<span class="rlbl">'+String(r.chunkIdx+1).padStart(2,'0')+' g'+r.gen+' · '+when+'<br>'+text+'…</span>';
-    const p=document.createElement('button'); p.textContent='▶';
-    p.onclick=()=>{ const u=URL.createObjectURL(r.blob); const rv=$('resultVid');
-      $('m2').click(); rv.src=u; rv.style.display='block'; rv.play(); };
-    const s=document.createElement('button'); s.textContent='SAVE'; s.onclick=()=>saveRow(r);
-    const sh=document.createElement('button'); sh.textContent='SHARE'; sh.onclick=()=>shareRow(r);
-    const del=document.createElement('button'); del.textContent='✕'; del.className='danger';
-    del.onclick=async()=>{
-      if(!confirm('Delete '+rowName(r)+' from the vault?')) return;
-      await dbDel('media',r.id);
-      rows=rows.filter(x=>x.id!==r.id);
-      const c=chunks[r.chunkIdx];
-      if(c && c.resultBlob===r.blob){ c.resultBlob=null; if(c.resultUrl){URL.revokeObjectURL(c.resultUrl);c.resultUrl=null;} hydrateChunk(r.chunkIdx); }
-      renderReel(); renderLedger(); renderChunk();
-    };
-    d.append(p,s,sh,del); reel.appendChild(d);
+    const d=document.createElement('div');d.className='reelrow';
+    const when=new Date(r.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    d.innerHTML='<span class="txt">'+(r.fwdText||'')+'<div class="meta">'
+      +(r.lineN?('LINE '+String(r.lineN).padStart(2,'0')):'FREESTYLE')+' · TAKE '+r.take+' · '+when+(r.kept?' · KEPT':'')+'</div></span>';
+    const p=document.createElement('button');p.textContent='▶';
+    p.onclick=()=>{ const rv=$('reelVid');rv.src=URL.createObjectURL(r.blob);rv.style.display='block';rv.play();window.scrollTo(0,0); };
+    const s=document.createElement('button');s.textContent='SHARE';s.onclick=()=>shareRow(r);
+    const del=document.createElement('button');del.textContent='✕';del.className='del';
+    del.onclick=async()=>{ if(!confirm('Delete this take?'))return;
+      await dbDel('media',r.id);rows=rows.filter(x=>x.id!==r.id);renderReel();renderHome(); };
+    d.append(p,s,del);list.appendChild(d);
   });
 }
-$('exportAll').onclick=()=>{
+$('exportAllBtn').onclick=()=>{
   const results=rows.filter(r=>r.kind==='result');
+  $('reelLcd').textContent='Downloading '+results.length+' films to Files…';
   let delay=0;
-  results.forEach(r=>{ setTimeout(()=>saveRow(r), delay); delay+=700; });
-  lcd(2,'Exporting '+results.length+' files to your downloads…');
+  results.forEach(r=>{ setTimeout(()=>{
+    const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=rowName(r);a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  }, delay); delay+=800; });
 };
 
-/* ---------- boot: restore the session ---------- */
+/* ---------- boot ---------- */
 (async function boot(){
   try{
-    const savedScript=await dbGetMeta('script');
-    if(savedScript) $('scriptBox').value=savedScript;
     rows=await dbAll('media');
-    await loadScript(false);
-    idleScene();
-    const takes=rows.filter(r=>r.kind==='take').length;
-    if(rows.length){
-      lcd(0,'Session restored from vault: '+new Set(rows.filter(r=>r.kind==='ref').map(r=>r.chunkIdx)).size
-        +' refs, '+takes+' takes, '+rows.filter(r=>r.kind==='result').length+' reversed.');
-    }
-  }catch(e){
-    chunks.length||await loadScript(false);
-    idleScene();
-    lcd(0,'Vault unavailable ('+e.message+') — running without persistence.');
-  }
+    await loadBackdropFromVault();
+  }catch(e){}
+  renderHome();
 })();
 </script>
 </body>

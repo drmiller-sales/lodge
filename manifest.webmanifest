@@ -1,10 +1,11 @@
 {
-  "name": "LODGE-1 Reverse Dialogue Unit",
-  "short_name": "LODGE-1",
+  "name": "Lucy's Lodge",
+  "short_name": "Lucy's Lodge",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#2a2a2c",
-  "theme_color": "#2a2a2c",
+  "orientation": "portrait",
+  "background_color": "#0a0808",
+  "theme_color": "#0a0808",
   "icons": [
     { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
