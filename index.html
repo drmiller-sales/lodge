@@ -166,6 +166,9 @@ input[type=file]{display:none;}
     <label class="lcd" id="backdropStatus">No backdrop loaded — the painted curtains will be used.</label>
     <input type="file" id="backdropFile" accept="image/*">
     <div class="gap"></div>
+    <button class="plate" id="resetBoardBtn">Reset The Board (keeps all films)</button>
+    <div class="lcd">Un-grays every message so the night can start fresh. Nothing is deleted.</div>
+    <div class="gap"></div>
     <button class="plate ghost" id="wipeBtn">Erase Everything (careful)</button>
     <div class="spacer"></div>
     <div class="lcd">Everything recorded saves itself to this iPad instantly.<br>Export from The Reel at the end of the night.</div>
@@ -613,6 +616,12 @@ $('backdropFile').onchange=async e=>{
   await loadBackdropFromVault();
   $('backdropStatus').textContent='Backdrop loaded ✓ — the room is dressed.';
 };
+$('resetBoardBtn').onclick=async()=>{
+  if(!confirm('Un-gray all messages? Films stay in The Reel.'))return;
+  for(const r of rows){ if(r.kind==='result'&&r.kept){ r.kept=false; await dbPut('media',r); } }
+  renderHome();
+  $('backdropStatus').textContent='Board reset — every message is available again.';
+};
 $('wipeBtn').onclick=async()=>{
   if(!confirm('Erase every recording and setting on this iPad?'))return;
   const db=await dbP; db.transaction(['media','meta'],'readwrite');
@@ -842,10 +851,20 @@ async function shareRow(r){
     const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=rowName(r);a.click();
   }
 }
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;inset:0;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,8,8,.92)';
+  t.innerHTML='<div class="tracked">The Room Will Remember</div>'
+    +'<div class="display mid" style="margin:14px 0">Saved ✓</div>'
+    +'<div class="lcd">'+msg+'</div>';
+  document.body.appendChild(t);
+  return new Promise(r=>setTimeout(()=>{t.remove();r();},1800));
+}
 $('keepBtn').onclick=async()=>{
   if(!lastResult)return;
   lastResult.kept=true; await dbPut('media',lastResult);
   await shareRow(lastResult);
+  await toast('Kept on this iPad · in The Reel · line marked on the board.');
   show('scr-home');
 };
 $('againBtn').onclick=()=>{ enterRoom(); };
