@@ -2,7 +2,7 @@
    Precache the app shell; runtime-cache everything else that loads
    successfully (fonts, MediaPipe model files) so the red room works
    in a park with no signal. Bump VERSION on any change. */
-const VERSION = 'lodge-v6.2.0';
+const VERSION = 'lodge-v6.3.0';
 const FILES = ['./','./index.html','./manifest.webmanifest','./icon-180.png','./icon-512.png'];
 
 self.addEventListener('install', e => {

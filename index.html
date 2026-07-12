@@ -354,7 +354,7 @@ input[type=file]{display:none;}
     <video id="reelVid" controls playsinline style="display:none"></video>
     <div id="reelList" style="width:100%"></div>
     <div class="gap"></div>
-    <button class="plate" id="exportAllBtn">Export All</button>
+    <button class="plate" id="exportAllBtn">Export All As One Zip</button>
     <div class="lcd" id="reelLcd"></div>
     <div class="gap"></div>
   </div>
@@ -364,7 +364,7 @@ input[type=file]{display:none;}
 /* ============================================================
    LUCY'S LODGE v5 — party build
 ============================================================ */
-const APP_VERSION='6.2.0';
+const APP_VERSION='6.3.0';
 const DATA = {"lines": [{"n": 1, "bank": "sweet", "diff": "EASY", "text": "We love you, Lucy.", "script": "ee-SOOLE  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW"}, {"n": 2, "bank": "sweet", "diff": "EASY", "text": "See you soon, Lucy.", "script": "ee-SOOLE  \u00b7  NOOSE  \u00b7  OOEE  \u00b7  EES"}, {"n": 3, "bank": "sweet", "diff": "EASY", "text": "Hello, Lucy. This is not goodbye.", "script": "EYE-b'duug  \u00b7  TAHN  \u00b7  ZIH  \u00b7  SIHTH  \u00b7  ee-SOOLE  \u00b7  OH-luhh"}, {"n": 4, "bank": "sweet", "diff": "EASY", "text": "Madison is lucky. We hope it knows that.", "script": "TATH  \u00b7  ZONE  \u00b7  TIH  \u00b7  P'WOAH  \u00b7  EW  \u00b7  ee-KUHL  \u00b7  ZIH  \u00b7  nuh-suh-DAMN"}, {"n": 5, "bank": "sweet", "diff": "EASY", "text": "We miss you already. We started years ago.", "script": "OH-guh  \u00b7  z'REE  \u00b7  dih-t'RAHTS  \u00b7  EW  \u00b7  ee-DEH-r'law  \u00b7  OOEE  \u00b7  SIM  \u00b7  EW"}, {"n": 6, "bank": "sweet", "diff": "EASY", "text": "Call us when you get there, after and always.", "script": "zay-w'LAW  \u00b7  d'nuh  \u00b7  ur-t'FA  \u00b7  REHTH  \u00b7  TEGG  \u00b7  OOEE  \u00b7  NEH-OO  \u00b7  SUH  \u00b7  LAWK"}, {"n": 7, "bank": "sweet", "diff": "EASY", "text": "We believe in you completely. We always have.", "script": "VAH  \u00b7  zay-w'LAW  \u00b7  EW  \u00b7  ee-l'TEA-l'p'muck  \u00b7  OOEE  \u00b7  nih  \u00b7  VE-lib  \u00b7  EW"}, {"n": 8, "bank": "sweet", "diff": "MEDIUM", "text": "You are going to be an amazing doctor.", "script": "ur-t'COD  \u00b7  ngih-ZAY-muh  \u00b7  NA  \u00b7  EEB  \u00b7  UTTE  \u00b7  ngih-WOHG  \u00b7  RAW  \u00b7  OOEE"}, {"n": 9, "bank": "sweet", "diff": "MEDIUM", "text": "We are proud of you for taking this big step.", "script": "PETS  \u00b7  GIHB  \u00b7  SIHTH  \u00b7  ngih-KATE  \u00b7  RAWF  \u00b7  OOEE  \u00b7  VUH  \u00b7  DWAHRP  \u00b7  RAW  \u00b7  EW"}, {"n": 10, "bank": "peaks", "diff": "EASY", "text": "Lucy, you will never be gone.", "script": "NAWG  \u00b7  EEB  \u00b7  ur-VENN  \u00b7  LEW  \u00b7  OOEE  \u00b7  ee-SOOLE"}, {"n": 11, "bank": "peaks", "diff": "EASY", "text": "Lola knows the way to Madison.", "script": "nuh-suh-DAMN  \u00b7  UTTE  \u00b7  YEHW  \u00b7  uhth  \u00b7  ZONE  \u00b7  uhh-LOAL"}, {"n": 12, "bank": "peaks", "diff": "EASY", "text": "Wisconsin is not what it seems.", "script": "z'MIECE  \u00b7  TIH  \u00b7  TAO  \u00b7  TAHN  \u00b7  ZIH  \u00b7  nuh-s'NA-k'sew"}, {"n": 13, "bank": "peaks", "diff": "EASY", "gesture": true, "text": "We are waving. Can you see us?", "script": "SUH  \u00b7  EES  \u00b7  OOEE  \u00b7  KNACK  \u00b7  ngih-VYEHW  \u00b7  RAW  \u00b7  EW"}, {"n": 14, "bank": "peaks", "diff": "EASY", "text": "Goodbye is a door that swings both ways.", "script": "ZYEHW  \u00b7  THOEB  \u00b7  z'NGEWS  \u00b7  TATH  \u00b7  RAUD  \u00b7  uhh  \u00b7  ZIH  \u00b7  EYE-b'duug"}, {"n": 15, "bank": "peaks", "diff": "EASY", "text": "The doctors there will make you a doctor.", "script": "ur-t'COD  \u00b7  uhh  \u00b7  OOEE  \u00b7  CAME  \u00b7  LEW  \u00b7  REHTH  \u00b7  zer-t'COD  \u00b7  uhth"}, {"n": 16, "bank": "peaks", "diff": "EASY", "text": "We rehearsed this goodbye. You were wonderful.", "script": "le-fur-d'NOW  \u00b7  URW  \u00b7  OOEE  \u00b7  EYE-b'duug  \u00b7  SIHTH  \u00b7  t'SIR-here  \u00b7  EW"}, {"n": 17, "bank": "peaks", "diff": "EASY", "text": "Lola is not a cat. But she loves you.", "script": "OOEE  \u00b7  z'VUHL  \u00b7  EASH  \u00b7  TUB  \u00b7  TACK  \u00b7  uhh  \u00b7  TAHN  \u00b7  ZIH  \u00b7  uhh-LOAL"}, {"n": 18, "bank": "peaks", "diff": "EASY", "text": "Meanwhile. We will always love you.", "script": "OOEE  \u00b7  VUHL  \u00b7  zay-w'LAW  \u00b7  LEW  \u00b7  EW  \u00b7  lie-w'NEAM", "gesture": true}, {"n": 19, "bank": "peaks", "diff": "EASY", "text": "We loved you forward. Now we love you in reverse.", "script": "SIR-veer  \u00b7  nih  \u00b7  OOEE  \u00b7  VUHL  \u00b7  EW  \u00b7  OUN  \u00b7  der-w'RAWF  \u00b7  OOEE  \u00b7  d'VUHL  \u00b7  EW"}, {"n": 20, "bank": "peaks", "diff": "EASY", "text": "We will see you in twenty five years. Or sooner.", "script": "ur-NOOSE  \u00b7  RAW  \u00b7  z'REE  \u00b7  VIFE  \u00b7  ee-t'NEH-OOT  \u00b7  nih  \u00b7  OOEE  \u00b7  EES  \u00b7  LEW  \u00b7  EW"}, {"n": 21, "bank": "peaks", "diff": "MEDIUM", "text": "You left something in Baltimore. It will find you.", "script": "OOEE  \u00b7  d'KNIFE  \u00b7  LEW  \u00b7  TIH  \u00b7  raw-muh-t'LAWB  \u00b7  nih  \u00b7  ngih-th'MUHS  \u00b7  t'FELL  \u00b7  OOEE"}, {"n": 22, "bank": "peaks", "diff": "MEDIUM", "text": "You were always going. We just didn't say it.", "script": "TIH  \u00b7  ACE  \u00b7  t'nuh-DID  \u00b7  t'SUHDZH  \u00b7  EW  \u00b7  ngih-WOHG  \u00b7  zay-w'LAW  \u00b7  URW  \u00b7  OOEE"}]};
 const $=id=>document.getElementById(id);
 
@@ -980,6 +980,34 @@ $('keepBtn').onclick=async()=>{
 $('againBtn').onclick=()=>{ enterRoom(); };
 
 /* ---------- THE REEL ---------- */
+/* ---- zip builder (STORE, no deps) ---- */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c;}return t;})();
+function crc32(u8){let c=0xFFFFFFFF;for(let i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zLE(n,b){const a=new Uint8Array(b);for(let i=0;i<b;i++){a[i]=n&0xFF;n>>>=8;}return a;}
+async function makeZip(files){   // files: [{name, blob}]
+  const parts=[],central=[];let off=0;
+  for(const f of files){
+    const data=new Uint8Array(await f.blob.arrayBuffer());
+    const name=new TextEncoder().encode(f.name);
+    const crc=crc32(data);
+    const local=[zLE(0x04034b50,4),zLE(20,2),zLE(0,2),zLE(0,2),zLE(0,2),zLE(0x5321,2),
+      zLE(crc,4),zLE(data.length,4),zLE(data.length,4),zLE(name.length,2),zLE(0,2),name];
+    const localLen=local.reduce((s,a)=>s+a.length,0);
+    parts.push(...local,data);
+    central.push({name,crc,size:data.length,off});
+    off+=localLen+data.length;
+  }
+  let cdLen=0;const cdStart=off;
+  for(const c of central){
+    const rec=[zLE(0x02014b50,4),zLE(20,2),zLE(20,2),zLE(0,2),zLE(0,2),zLE(0,2),zLE(0x5321,2),
+      zLE(c.crc,4),zLE(c.size,4),zLE(c.size,4),zLE(c.name.length,2),zLE(0,2),zLE(0,2),
+      zLE(0,2),zLE(0,2),zLE(0,4),zLE(c.off,4),c.name];
+    for(const a of rec){parts.push(a);cdLen+=a.length;}
+  }
+  parts.push(zLE(0x06054b50,4),zLE(0,2),zLE(0,2),zLE(central.length,2),zLE(central.length,2),
+    zLE(cdLen,4),zLE(cdStart,4),zLE(0,2));
+  return new Blob(parts,{type:'application/zip'});
+}
 function renderReel(){
   const list=$('reelList');list.innerHTML='';
   const results=rows.filter(r=>r.kind==='result').sort((a,b)=>b.ts-a.ts);
@@ -999,18 +1027,39 @@ function renderReel(){
     d.append(p,s,del);list.appendChild(d);
   });
 }
-$('exportAllBtn').onclick=()=>{
-  const results=rows.filter(r=>r.kind==='result');
-  $('reelLcd').textContent='Downloading '+results.length+' films to Files…';
-  let delay=0;
-  results.forEach(r=>{ setTimeout(()=>{
-    const a=document.createElement('a');a.href=URL.createObjectURL(r.blob);a.download=rowName(r);a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-  }, delay); delay+=800; });
+$('exportAllBtn').onclick=async()=>{
+  const results=rows.filter(r=>r.kind==='result').sort((a,b)=>a.ts-b.ts);
+  if(!results.length){ $('reelLcd').textContent='Nothing to export.'; return; }
+  $('exportAllBtn').disabled=true;
+  try{
+    const files=[];let manifest='LUCY\'S LODGE — ALL FILMS\n\n';
+    for(let i=0;i<results.length;i++){
+      const r=results[i];
+      const when=new Date(r.ts);
+      const stamp=when.toISOString().slice(0,16).replace('T','-').replace(':','');
+      const name=(r.lineN?('line'+String(r.lineN).padStart(2,'0')):'freestyle')+'-take'+r.take+'-'+stamp+'.'+ext(r.blob);
+      files.push({name,blob:r.blob});
+      manifest+=name+'\n  "'+(r.fwdText||'')+'"'+(r.kept?'  [KEPT]':'')+'\n\n';
+      $('reelLcd').textContent='Packing film '+(i+1)+' of '+results.length+'…';
+      await new Promise(r=>setTimeout(r,10));
+    }
+    files.push({name:'manifest.txt',blob:new Blob([manifest],{type:'text/plain'})});
+    $('reelLcd').textContent='Sealing the zip…';
+    const zip=await makeZip(files);
+    const f=new File([zip],'lucys-lodge-films.zip',{type:'application/zip'});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      await navigator.share({files:[f],title:"Lucy's Lodge — all films"}).catch(()=>{});
+    } else {
+      const a=document.createElement('a');a.href=URL.createObjectURL(zip);a.download='lucys-lodge-films.zip';a.click();
+    }
+    $('reelLcd').textContent=results.length+' films in one zip ('+Math.round(zip.size/1048576)+' MB). Save it to Files.';
+  }catch(e){
+    $('reelLcd').textContent='Zip failed ('+e.message+') — use SHARE on each row instead.';
+  }finally{ $('exportAllBtn').disabled=false; }
 };
 
 /* ---------- boot ---------- */
-document.getElementById('verBadge').textContent='v'+'6.2.0';
+document.getElementById('verBadge').textContent='v'+'6.3.0';
 (async function boot(){
   try{
     rows=await dbAll('media');
